@@ -45,7 +45,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       
       - name: Install Turbo
-        run: pnpm add turbo --global
+        run: pnpm add turbo
 
       - name: Build
         run: pnpm turbo build

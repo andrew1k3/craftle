@@ -1,16 +1,16 @@
-name: CI
+name: source
 
 on:
   push:
     branches:
       - main
-      - dev
       - feat/*
-      - dev/*
+      - dev
+      - fix/*
 
 jobs:
-  build:
-    name: Build
+  source:
+    name: source
     runs-on: ubuntu-22.04
 
     steps:
@@ -26,5 +26,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm turbo build
+      - name: Lint
+        run: pnpm turbo lint
+    
+      - name: Check Types
+        run: pnpm turbo check-types

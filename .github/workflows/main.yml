@@ -1,16 +1,14 @@
-name: source
+name: ci
 
 on:
-  push:
-    branches:
-      - main
-      - feat/*
-      - dev
-      - fix/*
+  workflow_run:
+    workflows: ["source"]
+    types:
+      - completed
 
 jobs:
-  source:
-    name: source
+  setup:
+    name: build
     runs-on: ubuntu-22.04
 
     steps:
@@ -25,6 +23,14 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
+      
       - name: Lint
         run: pnpm turbo lint
+
+      - name: Build
+        run: pnpm turbo build
+
+        # put in image
+  
+  #testing
+  

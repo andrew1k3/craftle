@@ -10,6 +10,9 @@ on:
     paths:
       - app/**.
       - packages/**
+  pull_request:
+    branches:
+    - main
 
 jobs:
   setup:

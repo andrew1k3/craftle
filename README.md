@@ -58,7 +58,7 @@ I don't want the site to glitch out and highlight randomly, should be a function
 - vercel (free deployment)
 - docker (container for deployment and CD)
 - ?? (testing library)
-- ?? (adapter interface library with database, sql substitute if i didn't want to use stored procs)
+- drizzleORM (adapter interface library with database, sql substitute if i didn't want to use stored procs)
 - ?? (framework to make models easily with postgres and ts)
 - better-auth (lightweight optional login system)
 - ?? (hosted cron job to run script for new daily task)

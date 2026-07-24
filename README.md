@@ -1,3 +1,5 @@
+[![ci](https://github.com/andrew1k3/craftle/actions/workflows/main.yml/badge.svg?branch=main&event=push)](https://github.com/andrew1k3/craftle/actions/workflows/main.yml)
+
 # Craftle
 
 Craftle is a daily game inspired by the game loop of "Wordle" where players guess the MineCraft item of the day, with a randomized inventory of items.

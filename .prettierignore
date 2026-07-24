@@ -22,3 +22,5 @@ out
 *.tsbuildinfo
 next-env.d.ts
 expo-env.d.ts
+
+LICENSE

@@ -13,7 +13,13 @@
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
+    "demo-data-for": "^1.0.0",
     "drizzle-kit": "1.0.0-rc.4",
     "tsx": "^4.23.1"
+  },
+  "scripts": {
+    "push": "pnpm drizzle-kit push",
+    "generate": "pnpm drizzle-kit generate",
+    "main": "pnpm dlx tsx ./src/index.ts"
   }
 }

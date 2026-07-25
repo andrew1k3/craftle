@@ -1,1 +1,0 @@
-ALTER TABLE "users" ALTER COLUMN "name" SET DATA TYPE varchar(256) USING "name"::varchar(256);

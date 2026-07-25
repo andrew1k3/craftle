@@ -1,25 +1,38 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq } from 'drizzle-orm';
-import { usersTable } from './db/schema';
+import { eq } from "drizzle-orm";
+import { usersTable } from "./db/schema";
+import users from "./data/users.json";
 
 // You can specify any property from the node-postgres connection options
-const db = drizzle({
+export const db = drizzle({
   connection: {
-    connectionString: process.env.DATABASE_URL!
+    connectionString: process.env.DATABASE_URL!,
   },
 });
 
 async function main() {
-  const user: typeof usersTable.$inferInsert = {
-    name: 'John',
-    age: 30,
-    email: 'john@example.com',
-  };
-  await db.insert(usersTable).values(user);
-  console.log('New user created!')
-  const users = await db.select().from(usersTable);
-  console.log('Getting all users from the database: ', users)
+  users.forEach(async (u) => {
+    const user: typeof usersTable.$inferInsert = {
+      name: u.name,
+      role: u.role,
+      email: u.email,
+    };
+    await db.insert(usersTable).values(user);
+    console.log("New user created!");
+    const users = await db.select().from(usersTable);
+    console.log("Getting all users from the database: ", users);
+  });
+
+  // const user: typeof usersTable.$inferInsert = {
+  //   name: "John",
+  //   age: 30,
+  //   email: "john@example.com",
+  // };
+  // await db.insert(usersTable).values(user);
+  // console.log("New user created!");
+  // const users = await db.select().from(usersTable);
+  // console.log("Getting all users from the database: ", users);
   /*
   const users: {
     id: number;
@@ -28,14 +41,15 @@ async function main() {
     email: string;
   }[]
   */
-  await db
-    .update(usersTable)
-    .set({
-      age: 31,
-    })
-    .where(eq(usersTable.email, user.email));
-  console.log('User info updated!')
-  await db.delete(usersTable).where(eq(usersTable.email, user.email));
-  console.log('User deleted!')
+  // await db
+  //   .update(usersTable)
+  //   .set({
+  //     age: 31,
+  //   })
+  //   .where(eq(usersTable.email, user.email));
+  // console.log("User info updated!");
+  // await db.delete(usersTable).where(eq(usersTable.email, user.email));
+  // console.log("User deleted!");
 }
+
 main();

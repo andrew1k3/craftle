@@ -5,11 +5,19 @@ import { usersTable } from "./db/schema";
 import users from "./data/users.json";
 
 // You can specify any property from the node-postgres connection options
-export const db = drizzle({
-  connection: {
-    connectionString: process.env.DATABASE_URL!,
-  },
-});
+// export const db = drizzle({
+//   connection: {
+//     connectionString: process.env.DATABASE_URL!,
+//   },
+// });
+
+import { neon } from "@neondatabase/serverless";
+import { config } from "dotenv";
+
+config({ path: ".env" }); // or .env.local
+
+const sql = neon(process.env.DATABASE_URL!);
+export const db = drizzle({ client: sql });
 
 async function main() {
   users.forEach(async (u) => {

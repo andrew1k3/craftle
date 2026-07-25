@@ -56,7 +56,6 @@ I don't want the site to glitch out and highlight randomly, should be a function
 - neon (postgres hosted database)
 - hono (api layer framework like fastapi for py but for ts) https://hono.dev/examples/zod-openapi 
 - vercel (free deployment)
-- docker (container for deployment and CD)
 - ?? (testing library)
 - drizzleORM (adapter interface library with database, sql substitute if i didn't want to use stored procs)
 - zod (framework to make models easily with postgres and ts)

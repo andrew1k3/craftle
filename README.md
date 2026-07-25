@@ -1,16 +1,18 @@
 [![ci](https://github.com/andrew1k3/craftle/actions/workflows/main.yml/badge.svg?branch=main&event=push)](https://github.com/andrew1k3/craftle/actions/workflows/main.yml)
+![Website Deploy](https://deploy-badge.vercel.app/vercel/deploy-badge?url=https://craftle-ten.vercel.app/?logo=vercel)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+
 
 # Craftle
 
-Craftle is a daily game inspired by the game loop of "Wordle" where players guess the MineCraft item of the day, with a randomized inventory of items.
+Craftle is a daily game inspired by the game loop of "Wordle" where players guess the Minecraft item of the day, with a randomized inventory of items.
 Players will get feedback on their guesses about the positioning and choices of their crafting elements for up to 5 attempts.
 Everyday, a new random item will be chosen as the one to be guessed, and a new randomized inventory is picked. This inventory is a combination of the elements comprising random recipes so it isn't just insane items altogether.
 
 # Web routes
 
 - / (main site, game screen)
-- /login (optional page upon popup for first visit to sign up for leaderboard)
-- /admin (admin panel only i can access through my login to see stats and change the current recipe, etc.)
 
 # File system for mono repo
 
@@ -18,7 +20,9 @@ Everyday, a new random item will be chosen as the one to be guessed, and a new r
 - apps/docs: ex
 - apps/home: portfolio (link to others)
 - packages/ui: put shared ui
-- apps/??: api layer sit?
+- packages/api: api layer sit
+- packages/db: db interaction
+- packages/model: schema for data (zod)
 
 # Database
 
@@ -53,12 +57,11 @@ I don't want the site to glitch out and highlight randomly, should be a function
 - shadcn (ui component library)
 - git (version control)
 - github actions (CI/CD)
-- ?? (postgres hosted database)
-- ?? (api layer framework like fastapi for py but for ts)
+- neon (postgres hosted database)
+- hono (api layer framework like fastapi for py but for ts) https://hono.dev/examples/zod-openapi 
 - vercel (free deployment)
-- docker (container for deployment and CD)
 - ?? (testing library)
-- ?? (adapter interface library with database, sql substitute if i didn't want to use stored procs)
-- ?? (framework to make models easily with postgres and ts)
+- drizzleORM (adapter interface library with database, sql substitute if i didn't want to use stored procs)
+- zod (framework to make models easily with postgres and ts)
 - better-auth (lightweight optional login system)
-- ?? (hosted cron job to run script for new daily task)
+- gh actions (hosted cron job to run script for new daily task)

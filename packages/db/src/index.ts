@@ -1,55 +1,43 @@
-import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq } from "drizzle-orm";
-import { usersTable } from "./db/schema";
-import users from "./data/users.json";
+import { Pool } from "pg";
 
-// You can specify any property from the node-postgres connection options
-export const db = drizzle({
-  connection: {
-    connectionString: process.env.DATABASE_URL!,
-  },
-});
+export type Db = ReturnType<typeof drizzle>;
 
-async function main() {
-  users.forEach(async (u) => {
-    const user: typeof usersTable.$inferInsert = {
-      name: u.name,
-      role: u.role,
-      email: u.email,
-    };
-    await db.insert(usersTable).values(user);
-    console.log("New user created!");
-    const users = await db.select().from(usersTable);
-    console.log("Getting all users from the database: ", users);
-  });
+const MAX_CONNECTIONS = 10;
+const IDLE_TIMEOUT_MS = 30000; // 30 seconds
+const CONNECTION_TIMEOUT_MS = 2000; // 2 seconds
 
-  // const user: typeof usersTable.$inferInsert = {
-  //   name: "John",
-  //   age: 30,
-  //   email: "john@example.com",
-  // };
-  // await db.insert(usersTable).values(user);
-  // console.log("New user created!");
-  // const users = await db.select().from(usersTable);
-  // console.log("Getting all users from the database: ", users);
-  /*
-  const users: {
-    id: number;
-    name: string;
-    age: number;
-    email: string;
-  }[]
-  */
-  // await db
-  //   .update(usersTable)
-  //   .set({
-  //     age: 31,
-  //   })
-  //   .where(eq(usersTable.email, user.email));
-  // console.log("User info updated!");
-  // await db.delete(usersTable).where(eq(usersTable.email, user.email));
-  // console.log("User deleted!");
+export class Database {
+  private static instance: Db;
+
+  private constructor() {}
+
+  public static getInstance(connectionString?: string): Db {
+    if (Database.instance) {
+      return Database.instance;
+    }
+
+    if (!connectionString && !process.env.DATABASE_URL) {
+      if (!connectionString) {
+        throw new Error(
+          "Database connection string is not provided and DATABASE_URL environment variable is not set.",
+        );
+      }
+      if (!process.env.DATABASE_URL) {
+        throw new Error("DATABASE_URL environment variable is not set.");
+      }
+    }
+
+    const pool: Pool = new Pool({
+      connectionString: connectionString || process.env.DATABASE_URL,
+      max: MAX_CONNECTIONS,
+      idleTimeoutMillis: IDLE_TIMEOUT_MS,
+      connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
+    });
+
+    Database.instance = drizzle({
+      client: pool,
+    });
+    return Database.instance;
+  }
 }
-
-main();

@@ -7,9 +7,6 @@ on:
       - dev
       - fix/*
       - feat/*
-    paths:
-      - app/**.
-      - packages/**
   pull_request:
     branches:
       - main

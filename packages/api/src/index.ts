@@ -2,22 +2,25 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
 import { getUsersRoute } from "./routes/users";
 import { getUsers } from "./handlers/users";
-import { getUsersParams } from "./models/users";
-import { Database, Db } from "@workspace/db";
+import { getUsersParams, getUsersParamsSchema } from "./models/users";
+import { Database } from "@workspace/db";
 
-const app: OpenAPIHono = new OpenAPIHono();
-// Initialize the database connection
-const db: Db = Database.getInstance();
+const app: OpenAPIHono = new OpenAPIHono().basePath("/api");
+Database.getInstance(); // Initialize the database connection
 
-// Users
+// -- Users --
+// Get all users
 app.openapi(getUsersRoute, async (c) => {
-  c.req.valid("query");
-  const usersParams: getUsersParams = c.req.queries();
+  const usersParams: getUsersParams = c.req.valid("query");
+  if (!getUsersParamsSchema.safeParse(usersParams).success) {
+    throw new HTTPException(400, {
+      message: "Invalid query parameters",
+    });
+  }
+
   const users = await getUsers(usersParams);
   return c.json(users, 200);
 });
-
-// app.openapi(route, )
 
 app.doc("/doc", {
   openapi: "3.0.0",

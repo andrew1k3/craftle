@@ -90,6 +90,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../db
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       hono:
         specifier: ^4.12.32
         version: 4.12.32

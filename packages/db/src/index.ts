@@ -1,6 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import "dotenv/config";
 
 export type Db = ReturnType<typeof drizzle>;
 
@@ -18,20 +17,14 @@ export class Database {
       return Database.instance;
     }
 
-    if (!connectionString && !process.env.DATABASE_URL) {
-      console.log(connectionString, process.env.DATABASE_URL);
-      if (!connectionString) {
-        throw new Error(
-          "Database connection string is not provided and DATABASE_URL environment variable is not set.",
-        );
-      }
-      if (!process.env.DATABASE_URL) {
-        throw new Error("DATABASE_URL environment variable is not set.");
-      }
+    if (!connectionString) {
+      throw new Error(
+        "Database connection string is not provided and DATABASE_URL environment variable is not set.",
+      );
     }
 
     const pool: Pool = new Pool({
-      connectionString: connectionString || process.env.DATABASE_URL,
+      connectionString: connectionString,
       max: MAX_CONNECTIONS,
       idleTimeoutMillis: IDLE_TIMEOUT_MS,
       connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,

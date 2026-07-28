@@ -4,9 +4,10 @@ import { getUsersRoute } from "./routes/users";
 import { getUsers } from "./handlers/users";
 import { getUsersParams, getUsersParamsSchema } from "./models/users";
 import { Database } from "@workspace/db";
+import "dotenv/config";
 
 const app: OpenAPIHono = new OpenAPIHono().basePath("/api");
-Database.getInstance(); // Initialize the database connection
+Database.getInstance(process.env.DATABASE_URL); // Initialize the database connection
 
 // -- Users --
 // Get all users

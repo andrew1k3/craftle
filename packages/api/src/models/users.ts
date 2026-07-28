@@ -12,8 +12,6 @@ export const getUsersParamsSchema = z.object({
   }),
 });
 
-
-
 export const userSchema = z
   .object({
     id: z.number().int().positive().openapi({

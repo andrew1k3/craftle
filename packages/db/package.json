@@ -7,19 +7,26 @@
     "access": "public"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "drizzle-orm": "1.0.0-rc.4",
     "pg": "^8.22.0"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "demo-data-for": "^1.0.0",
     "drizzle-kit": "1.0.0-rc.4",
+    "eslint": "^9",
     "tsx": "^4.23.1"
   },
   "scripts": {
     "push": "pnpm drizzle-kit push",
     "generate": "pnpm drizzle-kit generate",
-    "test": "pnpm dlx tsx ./src/data/test.ts"
+    "test": "pnpm dlx tsx ./src/data/test.ts",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
     ".": "./src/index.ts",

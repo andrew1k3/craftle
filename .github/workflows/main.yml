@@ -12,7 +12,7 @@ on:
       - packages/**
   pull_request:
     branches:
-    - main
+      - main
 
 jobs:
   setup:
@@ -30,15 +30,17 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
+        run: pnpm install
+
       - name: Lint
-        run: pnpm turbo lint
+        run: pnpm lint
+
+      - name: Check Types
+        run: pnpm check-types
 
       - name: Build
-        run: pnpm turbo build
+        run: pnpm build
 
-        # put in image
-  
-  #testing
-  
+        # testing
+      - name: Test
+        run: pnpm test

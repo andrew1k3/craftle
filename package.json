@@ -8,7 +8,9 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "turbo test",
+    "push": "turbo push"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

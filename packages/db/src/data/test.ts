@@ -4,19 +4,18 @@ import users from "./users.json";
 import { Database, Db } from "..";
 
 async function main() {
-  users.forEach(async (u) => {
-    const user: typeof usersTable.$inferInsert = {
-      name: u.name,
-      role: u.role,
-      email: u.email,
-    };
-    const db: Db = Database.getInstance();
-    await db.insert(usersTable).values(user);
-    console.log("New user created!");
-    const users = await db.select().from(usersTable);
-    console.log("Getting all users from the database: ", users);
-  });
-
+  //   users.forEach(async (u) => {
+  //     const user: typeof usersTable.$inferInsert = {
+  //       name: u.name,
+  //       role: u.role,
+  //       email: u.email,
+  //     };
+  //     const db: Db = Database.getInstance();
+  //     await db.insert(usersTable).values(user);
+  //     console.log("New user created!");
+  //     const users = await db.select().from(usersTable);
+  //     console.log("Getting all users from the database: ", users);
+  //   });
   // const user: typeof usersTable.$inferInsert = {
   //   name: "John",
   //   age: 30,

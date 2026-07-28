@@ -145,6 +145,7 @@ importers:
       drizzle-orm:
         specifier: 1.0.0-rc.4
         version: 1.0.0-rc.4(@neondatabase/serverless@1.1.0)(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3)
+        version: 1.0.0-rc.4(@neondatabase/serverless@1.1.0)(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3)
       pg:
         specifier: ^8.22.0
         version: 8.22.0
@@ -5665,7 +5666,9 @@ snapshots:
       jiti: 2.7.0
 
   drizzle-orm@1.0.0-rc.4(@neondatabase/serverless@1.1.0)(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3):
+  drizzle-orm@1.0.0-rc.4(@neondatabase/serverless@1.1.0)(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3):
     optionalDependencies:
+      '@neondatabase/serverless': 1.1.0
       '@neondatabase/serverless': 1.1.0
       '@types/pg': 8.20.0
       pg: 8.22.0

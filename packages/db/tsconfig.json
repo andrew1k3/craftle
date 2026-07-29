@@ -3,7 +3,9 @@
   "compilerOptions": {
     "paths": {
       "@workspace/db/*": ["./src/*"]
-    }
+    },
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist", "drizzle"]

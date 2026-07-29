@@ -6,11 +6,11 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 
 describe("Get all users", () => {
   // Create the test client from the app instance
-  const client = testClient(app);
+  // const client = testClient(app);
 
   it("should get all users", async () => {
     // Call the endpoint using the typed client
-    const res = await app.request("/api/users", {
+    const res = await app.request("/users", {
       method: "GET",
     });
 

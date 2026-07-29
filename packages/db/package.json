@@ -6,6 +6,8 @@
   "publishConfig": {
     "access": "public"
   },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "dotenv": "^17.4.2",
     "drizzle-orm": "1.0.0-rc.4",
@@ -26,10 +28,19 @@
     "test": "pnpm dlx tsx ./src/data/test.ts",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./schema": "./src/db/schema.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./dist/db/schema.d.ts",
+      "development": "./src/db/schema.ts",
+      "default": "./dist/db/schema.js"
+    }
   }
 }

@@ -1,19 +1,10 @@
 name: ci
 
 on:
-  push:
-    branches:
-      - main
-      - dev
-      - fix/*
-      - feat/*
   pull_request:
-    branches:
-      - main
 
 jobs:
-  setup:
-    name: build
+  build:
     runs-on: ubuntu-22.04
 
     steps:
@@ -30,15 +21,15 @@ jobs:
         run: pnpm install
 
       - name: Lint
-        run: pnpm lint
+        run: turbo lint
 
       - name: Check Types
-        run: pnpm typecheck
+        run: turbo typecheck
 
       - name: Build
-        run: pnpm build
+        run: turbo build
 
-      - name: Test
+      - name: Unit Tests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: pnpm test
+        run: turbo test

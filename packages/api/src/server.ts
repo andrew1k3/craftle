@@ -6,4 +6,4 @@ serve({
   port: 3030,
 });
 
-console.log("API running on http://localhost:3030/");
+console.log("API running on http://localhost:3030/api");

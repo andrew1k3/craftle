@@ -7,6 +7,7 @@ export const getUsers = async ({
   limit,
   offset,
 }: getUsersParams): Promise<User[]> => {
+  console.log(limit, offset);
   if (limit! <= 0) {
     throw new HTTPException(400, {
       message: "Limit must be a positive integer",

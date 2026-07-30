@@ -21,15 +21,15 @@ jobs:
         run: pnpm install
 
       - name: Lint
-        run: turbo lint
+        run: pnpm lint
 
       - name: Check Types
-        run: turbo typecheck
+        run: pnpm typecheck
 
       - name: Build
-        run: turbo build
+        run: pnpm build
 
       - name: Unit Tests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: turbo test
+        run: pnpm test

@@ -2,28 +2,25 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
 import { getUsersRoute } from "./routes/users";
 import { getUsers } from "./handlers/users";
-import { getUsersParams, getUsersParamsSchema } from "./models/users";
+import { getUsersParams, getUsersParamsSchema, User } from "./models/users";
 import { Database } from "@workspace/db";
+import { Hono } from "hono";
 import "dotenv/config";
 
-const app: OpenAPIHono = new OpenAPIHono();
-Database.getInstance(process.env.DATABASE_URL); // Initialize the database connection
+export const BASE_PATH = "/api";
 
-// -- Users --
-// Get all users
-app.openapi(getUsersRoute, async (c) => {
+const app: Hono = new Hono();
+const api: OpenAPIHono = new OpenAPIHono();
+Database.getInstance(process.env.DATABASE_URL);
+
+// /users
+api.openapi(getUsersRoute, async (c) => {
   const usersParams: getUsersParams = c.req.valid("query");
-  if (!getUsersParamsSchema.safeParse(usersParams).success) {
-    throw new HTTPException(400, {
-      message: "Invalid query parameters",
-    });
-  }
-
-  const users = await getUsers(usersParams);
+  const users: User[] = await getUsers(usersParams);
   return c.json(users, 200);
 });
 
-app.doc("/doc", {
+api.doc("/doc", {
   openapi: "3.0.0",
   info: {
     version: "1.0.0",
@@ -31,7 +28,7 @@ app.doc("/doc", {
   },
 });
 
-app.onError((err, c) => {
+api.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
@@ -46,4 +43,5 @@ app.onError((err, c) => {
   );
 });
 
+app.route(BASE_PATH, api);
 export default app;

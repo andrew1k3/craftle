@@ -1,19 +1,10 @@
 name: ci
 
 on:
-  push:
-    branches:
-      - main
-      - dev
-      - fix/*
-      - feat/*
   pull_request:
-    branches:
-      - main
 
 jobs:
-  setup:
-    name: build
+  build:
     runs-on: ubuntu-22.04
 
     steps:
@@ -38,7 +29,7 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Test
+      - name: Unit Tests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm test

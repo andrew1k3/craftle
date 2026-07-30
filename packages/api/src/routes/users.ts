@@ -1,5 +1,5 @@
-import { createRoute, type RouteConfig } from "@hono/zod-openapi";
-import { getUsersParamsSchema, userSchema } from "../models/users";
+import { createRoute } from "@hono/zod-openapi";
+import { getUsersParamsSchema, userSchema } from "@workspace/contracts/users";
 
 export const getUsersRoute = createRoute({
   method: "get",

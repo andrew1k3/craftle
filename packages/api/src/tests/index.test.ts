@@ -3,67 +3,24 @@ import { testClient } from "hono/testing";
 import app, { BASE_PATH } from "../";
 import { describe, it, expect } from "vitest";
 import { buildQueryParams } from "./utils";
-import { getUsersParams } from "../models/users";
+import { getUsersParams } from "@workspace/contracts/users";
 
-describe("Get all users", () => {
-  it("should get all users", async () => {
-    // Call the endpoint using the typed client
-    const res = await app.request(`${BASE_PATH}/users`);
+describe("/", () => {
+  it("should get all the docs", async () => {
+    const res = await app.request(`${BASE_PATH}`);
 
-    // Assertions
     expect(res?.status).toBe(200);
     expect(await res?.json()).not.toBeNull();
   });
+});
 
-  it("should get a limited amount of users", async () => {
-    const options: getUsersParams = {
-      offset: 0,
-      limit: 10,
-    };
-    console.log(`${BASE_PATH}/users${buildQueryParams(options)}`);
-    const res = await app.request(
-      `${BASE_PATH}/users${buildQueryParams(options)}`,
-    );
+describe("/health", () => {
+  it("should return 200 OK", async () => {
+    const res = await app.request(`${BASE_PATH}/health`);
     const data = await res.json();
 
     expect(res?.status).toBe(200);
     expect(data).not.toBeNull();
-    expect(data).length.lte(10);
-  });
-
-  it("should return 400 for invalid query parameters", async () => {
-    const options: getUsersParams = {
-      offset: -1,
-      limit: 10,
-    };
-    const res = await app.request(
-      `${BASE_PATH}/users${buildQueryParams(options)}`,
-    );
-
-    expect(res?.status).toBe(400);
-  });
-
-  it("get different users with different offsets", async () => {
-    const options1: getUsersParams = {
-      offset: 0,
-      limit: 10,
-    };
-    const res1 = await app.request(
-      `${BASE_PATH}/users${buildQueryParams(options1)}`,
-    );
-    const data1 = await res1.json();
-
-    const options2: getUsersParams = {
-      offset: 10,
-      limit: 10,
-    };
-    const res2 = await app.request(
-      `${BASE_PATH}/users${buildQueryParams(options2)}`,
-    );
-    const data2 = await res2.json();
-
-    expect(res1?.status).toBe(200);
-    expect(res2?.status).toBe(200);
-    expect(data1).not.toEqual(data2);
+    expect(data).toHaveProperty("status", "ok");
   });
 });

@@ -12,15 +12,16 @@ export class Database {
 
   private constructor() {}
 
-  public static getInstance(connectionString?: string): Db {
+  public static getInstance(): Db {
     if (Database.instance) {
       return Database.instance;
     }
 
+    const connectionString = process.env.DATABASE_URL;
+    console.log("DATABASE_URL: ", connectionString);
+
     if (!connectionString) {
-      throw new Error(
-        "Database connection string is not provided and DATABASE_URL environment variable is not set.",
-      );
+      throw new Error("DATABASE_URL environment variable is not set.");
     }
 
     const pool: Pool = new Pool({

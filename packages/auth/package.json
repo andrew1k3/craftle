@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/auth",
+  "version": "0.0.0",
+  "dependencies": {
+    "better-auth": "^1.6.25",
+    "@workspace/db": "workspace:*"
+  },
+  "devDependencies": {
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "eslint": "^9",
+    "typescript": "^5"
+  }
+}

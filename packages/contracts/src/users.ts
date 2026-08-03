@@ -1,18 +1,18 @@
 import { z } from "@hono/zod-openapi";
 
-export const getUsersParamsSchema = z.object({
+export const getTestUsersParamsSchema = z.object({
   limit: z.coerce.number().int().positive().optional().openapi({
-    description: "The maximum number of users to return",
+    description: "The maximum number of test users to return",
     example: 10,
   }),
   offset: z.coerce.number().int().nonnegative().optional().openapi({
     description:
-      "The number of users to skip before starting to collect the result set",
+      "The number of test users to skip before starting to collect the result set",
     example: 0,
   }),
 });
 
-export const userSchema = z
+export const testUserSchema = z
   .object({
     id: z.number().int().positive().openapi({
       example: 1,
@@ -28,9 +28,9 @@ export const userSchema = z
     }),
   })
   .openapi({
-    title: "User",
-    description: "A user object",
+    title: "Test User",
+    description: "A test user object",
   });
 
-export type User = z.infer<typeof userSchema>;
-export type getUsersParams = z.infer<typeof getUsersParamsSchema>;
+export type TestUser = z.infer<typeof testUserSchema>;
+export type getTestUsersParams = z.infer<typeof getTestUsersParamsSchema>;

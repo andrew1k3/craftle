@@ -1,17 +1,17 @@
 import { Database, Db } from "@workspace/db";
-import { usersTable } from "@workspace/db/schema";
-import { User, getUsersParams } from "@workspace/contracts/users";
+import { testUsersTable } from "@workspace/db/schema";
+import { TestUser, getTestUsersParams } from "@workspace/contracts/users";
 import { HTTPException } from "hono/http-exception";
 
-export const getUsers = async ({
+export const getTestUsers = async ({
   limit,
   offset,
-}: getUsersParams): Promise<User[]> => {
+}: getTestUsersParams): Promise<TestUser[]> => {
   const db: Db = Database.getInstance();
 
-  const users: (typeof usersTable.$inferSelect)[] = await db
+  const users: (typeof testUsersTable.$inferSelect)[] = await db
     .select()
-    .from(usersTable)
+    .from(testUsersTable)
     .limit(limit ?? 1000)
     .offset(offset ?? 0);
 

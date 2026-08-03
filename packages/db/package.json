@@ -23,7 +23,6 @@
   "scripts": {
     "push": "pnpm drizzle-kit push",
     "generate": "pnpm drizzle-kit generate",
-    "test": "tsx --env-file=.env ./src/data/test.ts",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"

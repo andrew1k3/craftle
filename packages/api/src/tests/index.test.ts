@@ -1,9 +1,5 @@
-import { Hono } from "hono";
-import { testClient } from "hono/testing";
 import app, { BASE_PATH } from "../";
 import { describe, it, expect } from "vitest";
-import { buildQueryParams } from "./utils";
-import { getUsersParams } from "@workspace/contracts/users";
 
 describe("/", () => {
   it("should get all the docs", async () => {

@@ -1,20 +1,23 @@
 import { createRoute } from "@hono/zod-openapi";
-import { getUsersParamsSchema, userSchema } from "@workspace/contracts/users";
+import {
+  getTestUsersParamsSchema,
+  testUserSchema,
+} from "@workspace/contracts/users";
 
-export const getUsersRoute = createRoute({
+export const getTestUsersRoute = createRoute({
   method: "get",
-  path: "/users",
+  path: "/testUsers",
   request: {
-    query: getUsersParamsSchema,
+    query: getTestUsersParamsSchema,
   },
   responses: {
     200: {
       content: {
         "application/json": {
-          schema: userSchema.array(),
+          schema: testUserSchema.array(),
         },
       },
-      description: "Retrieve the users",
+      description: "Retrieve the test users",
     },
   },
 });

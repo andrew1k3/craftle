@@ -1,7 +1,8 @@
-import { Geist, Geist_Mono, Outfit } from "next/font/google";
+import { Geist_Mono, Outfit } from "next/font/google";
 
 import "@workspace/ui/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth-provider";
 import { cn } from "@workspace/ui/lib/utils";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });
@@ -28,7 +29,9 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <AuthProvider baseURL={process.env.HONO_API_URL}>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

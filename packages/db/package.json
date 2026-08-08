@@ -13,19 +13,20 @@
     "pg": "^8.22.0"
   },
   "devDependencies": {
-    "@types/pg": "^8.20.0",
+    "@types/pg": "^8.20.3",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "demo-data-for": "^1.0.0",
-    "eslint": "^9",
-    "tsx": "^4.23.1"
+    "eslint": "^9.39.5",
+    "tsx": "^4.23.5"
   },
   "scripts": {
     "push": "pnpm drizzle-kit push",
     "generate": "pnpm drizzle-kit generate",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "studio": "pnpm drizzle-kit studio"
   },
   "exports": {
     ".": "./src/index.ts",

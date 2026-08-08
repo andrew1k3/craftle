@@ -1,8 +1,3 @@
-import { eq } from "drizzle-orm";
-import { testUsersTable } from "@workspace/db/schema";
-import demoUsers from "./users.json";
-import { Database, Db } from "..";
-
 async function main() {
   // const db: Db = Database.getInstance();
   // demoUsers.forEach(async (u) => {

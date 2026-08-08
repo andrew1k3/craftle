@@ -1,6 +1,11 @@
+"use client";
+
 import { Button } from "@workspace/ui/components/button";
+import useAuth from "@/hooks/useAuth";
 
 export default function Page() {
+  const { handleSignUp } = useAuth();
+
   return (
     <div className="flex min-h-svh p-6">
       <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
@@ -13,6 +18,7 @@ export default function Page() {
         <div className="text-muted-foreground font-mono text-xs">
           (Press <kbd>d</kbd> to toggle dark mode!)
         </div>
+        <Button onClick={handleSignUp}>Sign Up!</Button>
       </div>
     </div>
   );

@@ -47,7 +47,6 @@ api.onError((err, c) => {
 //auth
 app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 
-
 //testUsers
 api.openapi(getTestUsersRoute, async (c) => {
   const usersParams: getTestUsersParams = c.req.valid("query");

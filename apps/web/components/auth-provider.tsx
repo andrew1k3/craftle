@@ -12,7 +12,7 @@ function AuthProvider({
   children,
   ...props
 }: React.PropsWithChildren<BetterAuthClientOptions>) {
-  const authClient = createAuthClient(baseURL);
+  const authClient = createAuthClient(baseURL!);
   return (
     <AuthContext.Provider value={authClient} {...props}>
       {children}

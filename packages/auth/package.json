@@ -10,5 +10,8 @@
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^9",
     "typescript": "^5"
+  },
+  "exports": {
+    "." : "./src/auth.ts"
   }
 }

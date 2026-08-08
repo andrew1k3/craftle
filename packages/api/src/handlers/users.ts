@@ -1,7 +1,6 @@
 import { Database, Db } from "@workspace/db";
 import { testUsersTable } from "@workspace/db/schema";
 import { TestUser, getTestUsersParams } from "@workspace/contracts/users";
-import { HTTPException } from "hono/http-exception";
 
 export const getTestUsers = async ({
   limit,

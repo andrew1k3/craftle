@@ -33,6 +33,9 @@ api.get("/health", (c) => {
 });
 
 api.onError((err, c) => {
+  console.log("STATUS:", res.status);
+  console.log("BODY:", body);
+
   if (err instanceof HTTPException) {
     return err.getResponse();
   }

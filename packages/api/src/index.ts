@@ -6,6 +6,7 @@ import { getTestUsersParams, TestUser } from "@workspace/contracts/users";
 import { Database } from "@workspace/db";
 import { Hono } from "hono";
 import { auth, AuthType } from "@workspace/auth";
+import { cors } from "hono/cors";
 
 export const BASE_PATH = "/api";
 
@@ -19,6 +20,17 @@ const app: Hono<{ Variables: AuthType }> = new Hono<{ Variables: AuthType }>({
 const api: OpenAPIHono<{ Variables: AuthType }> = new OpenAPIHono<{
   Variables: AuthType;
 }>();
+
+//middleware
+api.use(
+  cors({
+    origin: "http://localhost:3000",
+    allowHeaders: ["Content-Type"],
+    allowMethods: ["POST", "GET", "OPTIONS"],
+    exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
+    credentials: true,
+  }),
+);
 
 api.doc("/", {
   openapi: "3.0.0",
@@ -48,7 +60,7 @@ api.onError((err, c) => {
 });
 
 //auth
-app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
+api.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 
 //testUsers
 api.openapi(getTestUsersRoute, async (c) => {

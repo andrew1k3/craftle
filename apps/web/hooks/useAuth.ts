@@ -17,7 +17,7 @@ export default function useAuth() {
   const handleSignUp = async () => {
     const { data, error } = await authClient.signUp.email(
       {
-        email: "test_email",
+        email: "test_email@gmail.com",
         name: "test_name",
         password: "test_password",
       },

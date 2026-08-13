@@ -1,123 +1,127 @@
-import { mergeSchema } from "better-auth/db";
-import { error } from "console";
 import MinecraftData from "minecraft-data";
+import "dotenv/config";
 
-const mcData: MinecraftData.IndexedData = MinecraftData(
-  process.env.MC_VERSION!,
-);
+console.log("cwd:", process.cwd());
+console.log("MC_VERSION:", process.env.MC_VERSION);
 
-export interface Item {
-  id: number;
-  recipes: Recipe[];
+const mcVersion = process.env.MC_VERSION;
+
+if (!mcVersion) {
+  throw new Error("MC_VERSION environment variable is not set");
 }
 
-export class Item implements Item {
-  id: number;
-  recipes: Recipe[];
+const mcData: MinecraftData.IndexedData = MinecraftData(mcVersion);
 
-  public constructor(item: MinecraftData.RecipeItem) {
-    if (typeof item === "object" || !item) {
-      throw new Error(`${item} doesn't follow number datatype.`);
-    }
-    this.id = item;
-    this.recipes =
-  }
+if (!mcData) {
+  throw new Error(
+    `Minecraft data for version ${mcVersion} could not be loaded`,
+  );
 }
 
-export interface Recipe {
+export type Shape = MinecraftData.Shape;
+export type Recipes = Recipe[];
+
+interface IItem {
+  id: number;
+  displayName: string;
+  stackSize: number;
+  recipes?: Recipes | undefined;
+}
+
+interface IRecipe {
   result: Item;
 }
 
-export interface ShapelessRecipe extends Recipe {
+interface IShapelessRecipe extends IRecipe {
   ingredients: Item[];
 }
 
-export interface ShapedRecipe extends Recipe {
-  inShape: MinecraftData.Shape;
+interface IShapedRecipe extends IRecipe {
+  inShape: Shape;
 }
 
-class RecipeFactory {
-  static createRecipe(recipe: MinecraftData.Recipe): Recipe {
-    if ("inShape" in recipe) {
-      return;
+export class Item implements IItem {
+  id: number;
+  displayName: string;
+  stackSize: number;
+  recipes?: Recipes | undefined;
+
+  private constructor(id: number, displayName: string, stackSize: number) {
+    this.id = id;
+    this.displayName = displayName;
+    this.stackSize = stackSize;
+
+    const recipes: MinecraftData.Recipe[] = mcData.recipes[this.id]!;
+    if (recipes) {
+      this.recipes = recipes.map(RecipeFactory.createRecipe);
     }
+  }
+
+  public hasRecipe(): boolean {
+    return this.recipes != undefined;
+  }
+
+  public static fromRecipeItem(recipeItem: MinecraftData.RecipeItem): Item {
+    if (typeof recipeItem !== "number") {
+      throw new Error(`${recipeItem} doesn't follow the id datatype.`);
+    }
+    const item: MinecraftData.Item = mcData.items[recipeItem]!;
+    return new Item(item.id, item.displayName, item.stackSize);
+  }
+
+  public static fromItem(item: MinecraftData.Item): Item {
+    return new Item(item.id, item.displayName, item.stackSize);
+  }
+
+  public static fromId(id: number): Item {
+    const item: MinecraftData.Item | undefined = mcData.items[id];
+    if (!item) {
+      throw new Error(`Item with id: ${id} does not exist`);
+    }
+    return new Item(item.id, item.displayName, item.stackSize);
+  }
+
+  public static fromDisplayName(displayName: string): Item {
+    const item: MinecraftData.Item | undefined =
+      mcData.itemsByName[displayName];
+    if (!item) {
+      throw new Error(`Item with name: ${displayName} does not exist`);
+    }
+    return new Item(item.id, item.displayName, item.stackSize);
   }
 }
 
-export class ShapelessRecipe implements ShapelessRecipe {
+export class Recipe implements IRecipe {
   public result: Item;
+  public constructor(recipe: MinecraftData.Recipe) {
+    this.result = Item.fromRecipeItem(recipe.result);
+  }
+}
+
+export class ShapelessRecipe extends Recipe implements IShapelessRecipe {
+  public ingredients: Item[];
 
   public constructor(shapelessRecipe: MinecraftData.ShapelessRecipe) {
-    this.result = Item(shapelessRecipe.result);
+    super(shapelessRecipe);
+    this.ingredients = shapelessRecipe.ingredients.map(Item.fromRecipeItem);
   }
 }
 
-function test() {
-  console.log(process.env.MC_VERSION!);
-  const itemName = "glass_bottle";
-  const item: MinecraftData.Item = mcData.itemsByName[itemName]!;
-  console.log(item.id, item.displayName);
-  console.log(mcData.items[item.id]);
-  // console.log(mcData.itemsByName["stone"]!);
+export class ShapedRecipe extends Recipe implements IShapedRecipe {
+  public inShape: MinecraftData.Shape;
 
-  const recipes: MinecraftData.Recipe[] = mcData.recipes[item.id]!;
-
-  recipes.forEach((recipe: MinecraftData.Recipe) => {
-    if ("inShape" in recipe) {
-      const inShape: MinecraftData.Shape = recipe.inShape;
-      console.log(
-        inShape.map((shapeRow: MinecraftData.ShapeRow) => {
-          return shapeRow.map((recipeItem: MinecraftData.RecipeItem) => {
-            if (!recipeItem) {
-              return "";
-            }
-            if (typeof recipeItem === "object") {
-              throw new Error("errorrrrr");
-            }
-            return mcData.items[recipeItem]?.name;
-          });
-        }),
-      );
-    } else {
-      recipe.ingredients.forEach((recipeItem: MinecraftData.RecipeItem) => {
-        if (typeof recipeItem === "object") {
-          throw new Error("errorrrrr");
-        }
-        console.log(mcData.items[recipeItem]);
-        // console.log(recipeItem);
-      });
-    }
-  });
-  // const recipesEntries: [string, Recipe[]][] = Object.entries(mcData.recipes);
-
-  // recipesEntries.forEach(([_, recipes]: [string, Recipe[]]) => {
-  // recipes.forEach((recipe: Recipe) => {
-  //   if ("inShape" in recipe) {
-  //     const inShape: Shape = recipe.inShape;
-  //     console.log(
-  //       inShape.map((shapeRow: ShapeRow) => {
-  //         return shapeRow.map((recipeItem: RecipeItem) => {
-  //           if (!recipeItem) {
-  //             return "";
-  //           }
-  //           if (typeof recipeItem === "object") {
-  //             throw new Error("errorrrrr");
-  //           }
-  //           return mcData.items[recipeItem]?.name;
-  //         });
-  //       }),
-  //     );
-  //   } else {
-  //     recipe.ingredients.forEach((recipeItem: RecipeItem) => {
-  //       if (typeof recipeItem === "object") {
-  //         throw new Error("errorrrrr");
-  //       }
-  //       console.log(mcData.items[recipeItem]);
-  //       // console.log(recipeItem);
-  //     });
-  //   }
-  // });
-  // });
+  public constructor(shapedRecipe: MinecraftData.ShapedRecipe) {
+    super(shapedRecipe);
+    this.inShape = shapedRecipe.inShape;
+  }
 }
 
-test();
+export class RecipeFactory {
+  public static createRecipe(recipe: MinecraftData.Recipe): Recipe {
+    if ("inShape" in recipe) {
+      return new ShapedRecipe(recipe);
+    } else {
+      return new ShapelessRecipe(recipe);
+    }
+  }
+}

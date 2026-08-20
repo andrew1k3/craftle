@@ -62,10 +62,26 @@ export class Item implements IItem {
   }
 
   public static fromRecipeItem(recipeItem: MinecraftData.RecipeItem): Item {
-    if (typeof recipeItem !== "number") {
-      throw new Error(`${recipeItem} doesn't follow the id datatype.`);
+    if (!recipeItem) {
+      throw new Error("recipeItem is null");
     }
-    const item: MinecraftData.Item = mcData.items[recipeItem]!;
+    let item: MinecraftData.Item;
+    if (typeof recipeItem === "number") {
+      item = mcData.items[recipeItem]!;
+    } else if (recipeItem instanceof Array) {
+      if (recipeItem[0] == null) {
+        throw new Error("Empty list for recipeItem");
+      }
+      item = mcData.items[recipeItem[0]]!;
+    } else {
+      if (recipeItem?.id == null) {
+        throw new Error(
+          `Empty id for recipeItem: ${JSON.stringify(recipeItem)}`,
+        );
+      }
+      item = mcData.items[recipeItem.id]!;
+    }
+
     return new Item(item.id, item.displayName, item.stackSize);
   }
 

@@ -8,7 +8,7 @@ import {
   RequestContext,
   SuccessContext,
 } from "better-auth/client";
-import { AuthContext } from "@/components/auth-provider";
+import { AuthContext } from "@/components/AuthProvider";
 
 export default function useAuth() {
   const authClient: AuthClient<BetterAuthClientOptions> =

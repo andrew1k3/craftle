@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.5.1",
+    "minecraft-data": "^3.113.0",
     "zod": "4.4.3"
   },
   "devDependencies": {

@@ -4,17 +4,13 @@
 
 
 
-# Craftle
+# craftle
 
-Craftle is a daily game inspired by the game loop of "Wordle" where players guess the Minecraft item of the day, with a randomized inventory of items.
+craftle is a daily game inspired by the game loop of "Wordle" where players guess the Minecraft item of the day, with a randomized inventory of items.
 Players will get feedback on their guesses about the positioning and choices of their crafting elements for up to 5 attempts.
 Everyday, a new random item will be chosen as the one to be guessed, and a new randomized inventory is picked. This inventory is a combination of the elements comprising random recipes so it isn't just insane items altogether.
 
-# Web routes
-
-- / (main site, game screen)
-
-# File system for mono repo
+# File system 
 
 - apps/web: craftle app
 - apps/docs: ex
@@ -22,14 +18,16 @@ Everyday, a new random item will be chosen as the one to be guessed, and a new r
 - packages/ui: put shared ui
 - packages/api: api layer sit
 - packages/db: db interaction
-- packages/model: schema for data (zod)
+- packages/contacts: schema for data (zod)
+- packages/auth: better-auth config
 
 # Database
 
-- Repository of all minecraft items with crafting recipes needed
 - Daily game data, updated every night 00.00 AEST
-- Users/user data from completion attempts.
-- Logs of these users
+- User/Account/Session data from auth.
+- Past game items.
+- Logs of these users and past game stats (completion rate, guess rate, etc...)
+
   > Drawing of this database structure needed
 
 # API endpoints
@@ -40,6 +38,12 @@ Some examples include:
 
 - GET today's game state, (inventory, don't post the actual correct answer)
 - POST guess (for log, auth from same session, attempt #) and then get evaluation + game state
+- POST game state (for cron job and admin panel, auth'd)
+- GET stats (for admin panel, auth'd, paginated)
+
+# Routes
+- / (main game)
+- /admin (admin portal for me to check statistics, see current answer, change it to choice)
 
 # UI/UX user stories
 
@@ -49,7 +53,7 @@ I want the ability to use minecraft's built in quick drag of items.
 
 I don't want the site to glitch out and highlight randomly, should be a functional game window.
 
-# stack
+# Stack
 
 - turborepo (monorepo)
 - nextjs (framework)
@@ -60,8 +64,9 @@ I don't want the site to glitch out and highlight randomly, should be a function
 - neon (postgres hosted database)
 - hono (api layer framework like fastapi for py but for ts) https://hono.dev/examples/zod-openapi 
 - vercel (free deployment)
-- ?? (testing library)
+- vitest (testing library)
 - drizzleORM (adapter interface library with database, sql substitute if i didn't want to use stored procs)
 - zod (framework to make models easily with postgres and ts)
 - better-auth (lightweight optional login system)
 - gh actions (hosted cron job to run script for new daily task)
+- minecraft-data (nodejs indexer for the minecraft-data npm package)

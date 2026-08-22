@@ -35,4 +35,8 @@ jobs:
       - name: Unit Tests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          MC_VERSION: ${{ secrets.MC_VERSION }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          HONO_API_URL: ${{ secrets.HONO_API_URL }}
+          REACT_APP_BASE_URL: ${{ secrets.REACT_APP_BASE_URL }}
         run: pnpm test

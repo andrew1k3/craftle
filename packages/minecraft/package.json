@@ -1,0 +1,27 @@
+{
+  "name": "@workspace/minecraft",
+  "version": "0.0.0",
+  "description": "Minecraft data and utilities for the application",
+  "scripts": {
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage"
+  },
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@workspace/contracts": "workspace:*",
+    "dotenv": "^17.4.2",
+    "minecraft-data": "^3.113.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "eslint": "^9",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  }
+}

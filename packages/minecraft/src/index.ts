@@ -1,4 +1,5 @@
 import MinecraftData from "minecraft-data";
+import MinecraftAssets = require("minecraft-assets");
 import {
   ItemData,
   RecipeData,
@@ -9,18 +10,28 @@ import "dotenv/config";
 
 const mcVersion = process.env.MC_VERSION;
 const mcData: MinecraftData.IndexedData = MinecraftData(mcVersion!);
+const mcAssets = MinecraftAssets(mcVersion!);
 const itemsToRecipes: Map<number, Recipe[]> = new Map();
 const recipeToItem: Map<string, Item> = new Map();
 
 export class Item implements ItemData {
   id: number;
+  name: string;
   displayName: string;
   stackSize: number;
+  image: string;
 
-  public constructor(id: number, displayName: string, stackSize: number) {
+  public constructor(id: number) {
+    const item: MinecraftData.Item | undefined = mcData.items[id];
+    if (!item) {
+      throw new Error(`Item with id: ${id} does not exist`);
+    }
+
     this.id = id;
-    this.displayName = displayName;
-    this.stackSize = stackSize;
+    this.name = item.name;
+    this.displayName = item.displayName;
+    this.stackSize = item.stackSize;
+    this.image = mcAssets.textureContent[this.name].texture;
   }
 
   public static fromRecipe(recipe: Recipe): Item {
@@ -67,28 +78,27 @@ export class Item implements ItemData {
       item = foundItem;
     }
 
-    return new Item(item.id, item.displayName, item.stackSize);
-  }
-
-  public static fromItem(item: MinecraftData.Item): Item {
-    return new Item(item.id, item.displayName, item.stackSize);
+    return new Item(item.id);
   }
 
   public static fromId(id: number): Item {
-    const item: MinecraftData.Item | undefined = mcData.items[id];
-    if (!item) {
-      throw new Error(`Item with id: ${id} does not exist`);
-    }
-    return new Item(item.id, item.displayName, item.stackSize);
+    return new Item(id);
   }
 
-  public static fromDisplayName(displayName: string): Item {
-    const item: MinecraftData.Item | undefined =
-      mcData.itemsByName[displayName];
+  public static fromItem(item: MinecraftData.Item): Item {
+    return new Item(item.id);
+  }
+
+  public static fromName(name: string): Item {
+    const item: MinecraftData.Item | undefined = mcData.itemsByName[name];
     if (!item) {
-      throw new Error(`Item with name: ${displayName} does not exist`);
+      throw new Error(`Item with name: ${name} does not exist`);
     }
-    return new Item(item.id, item.displayName, item.stackSize);
+    return new Item(item.id);
+  }
+
+  public static fromDisplayName(name: string): Item {
+    return this.fromName(name.replace(" ", "_").toLowerCase());
   }
 }
 

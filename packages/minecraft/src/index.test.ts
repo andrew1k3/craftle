@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import MinecraftData from "minecraft-data";
 
 import {
@@ -280,14 +280,6 @@ describe("minecraft-client", () => {
       expect(Item.fromRecipe(createdRecipe).id).toBe(createdRecipe.result.id);
     });
 
-    it("should throw when recipes are requested for an unknown item", () => {
-      const missingItem = new Item(999_999_999, "Missing Item", 64);
-
-      expect(() => Recipe.fromItem(missingItem)).toThrow(
-        `Recipes for item: ${JSON.stringify(missingItem)} do not exist`,
-      );
-    });
-
     it("should throw when recipes are requested for an unknown item id", () => {
       expect(() => Recipe.fromId(Number.MAX_SAFE_INTEGER)).toThrow(
         `Recipes for item: ${Number.MAX_SAFE_INTEGER} do not exist`,
@@ -410,6 +402,24 @@ describe("minecraft-client", () => {
       }
       expect(createdRecipe.result).toBeInstanceOf(Item);
       expect(createdRecipe.ingredients).toBeDefined();
+    });
+  });
+
+  describe("error handling and initialization guards", () => {
+    it("should throw when a recipe is mapped to a missing item", () => {
+      const missingRecipe = { id: "missing_recipe_id" } as Recipe;
+
+      expect(() => Item.fromRecipe(missingRecipe)).toThrow(
+        `Item for recipe: ${JSON.stringify(missingRecipe)} does not exist`,
+      );
+    });
+
+    it("should throw when a recipe lookup is requested for a missing mapped item", () => {
+      const missingItem = { id: Number.MAX_SAFE_INTEGER } as Item;
+
+      expect(() => Recipe.fromItem(missingItem)).toThrow(
+        `Recipes for item: ${JSON.stringify(missingItem)} do not exist`,
+      );
     });
   });
 });

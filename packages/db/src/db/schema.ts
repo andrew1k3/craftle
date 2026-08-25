@@ -1,2 +1,2 @@
-export * from "./test";
-export * from "./auth-schema";
+export * from "@workspace/contracts/db/test";
+export * from "@workspace/contracts/db/auth-schema";

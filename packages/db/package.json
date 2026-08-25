@@ -10,7 +10,8 @@
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "0.45.2",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "@workspace/contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "^8.20.3",

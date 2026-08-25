@@ -18,8 +18,7 @@
     "**/*.tsx",
     "**/*.mts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "../../packages/minecraft/src/index.test.ts"
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

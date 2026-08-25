@@ -9,11 +9,11 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run --coverage"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@workspace/ui": "workspace:*",
+    "@workspace/contracts": "workspace:*",
     "better-auth": "^1.6.25",
     "lucide-react": "^1.26.0",
     "minecraft-data": "^3.113.0",

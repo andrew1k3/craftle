@@ -9,11 +9,13 @@
     "test": "vitest run --coverage"
   },
   "exports": {
+    ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
   "dependencies": {
     "@workspace/contracts": "workspace:*",
     "dotenv": "^17.4.2",
+    "minecraft-assets": "^1.19.0",
     "minecraft-data": "^3.113.0"
   },
   "devDependencies": {

@@ -1,0 +1,15 @@
+{
+  "extends": "@workspace/typescript-config/react-library.json",
+  "compilerOptions": {
+    "paths": {
+      "@workspace/minecraft/*": ["./src/*"]
+    },
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,8 +1,8 @@
 import { Geist_Mono, Outfit } from "next/font/google";
 
 import "@workspace/ui/globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "@/components/auth-provider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 import { cn } from "@workspace/ui/lib/utils";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });

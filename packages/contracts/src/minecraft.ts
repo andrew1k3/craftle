@@ -27,6 +27,9 @@ export const itemSchema = z.object({
       example:
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVUlEQVR42mNgGAXYwSOB/ySJo4PMDRb/STYcGeg58/zHZzheC9BtACl2KVL5j2w4PgvgBqyB2kJYAw7biNaE7ncMjUheArkqH8k7JLmIZO+QpWFoAgAY9DgM7ldwswAAAABJRU5ErkJggg==",
     }),
+  count: z.number().int().optional().openapi({
+    example: "4",
+  }),
 });
 
 export const recipeSchema = z.object({
@@ -36,7 +39,10 @@ export const recipeSchema = z.object({
     .openapi({
       examples: ["shapeless_1_2_3__4", "shaped_123_456_789__10"],
     }),
-  result: itemSchema,
+  result: itemSchema.optional().openapi({
+    description:
+      "The result of the recipe, can be null if the recipe is not craftable",
+  }),
 });
 
 export const shapelessRecipeSchema = recipeSchema.extend({

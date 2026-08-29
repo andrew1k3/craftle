@@ -277,7 +277,7 @@ describe("minecraft-client", () => {
       const createdRecipe = RecipeFactory.createRecipe(recipe);
 
       expect(Item.fromRecipe(createdRecipe)).toBeInstanceOf(Item);
-      expect(Item.fromRecipe(createdRecipe).id).toBe(createdRecipe.result.id);
+      expect(Item.fromRecipe(createdRecipe).id).toBe(createdRecipe.result!.id);
     });
 
     it("should throw when recipes are requested for an unknown item id", () => {
@@ -336,7 +336,7 @@ describe("minecraft-client", () => {
       ) as ShapelessRecipe;
 
       expect(createdRecipe.id).toContain("shapeless_");
-      expect(createdRecipe.id).toContain(String(createdRecipe.result.id));
+      expect(createdRecipe.id).toContain(String(createdRecipe.result!.id));
     });
   });
 
@@ -357,15 +357,14 @@ describe("minecraft-client", () => {
       expect(createdRecipe.inShape).toBeDefined();
     });
 
-    it("should generate a recipe id based on the inShape pattern and result", () => {
+    it("should generate a recipe id based on the inShape pattern", () => {
       const recipe = findRecipe(
         (candidate) => !!candidate && "inShape" in candidate,
       ) as MinecraftData.ShapedRecipe;
       const createdRecipe = RecipeFactory.createRecipe(recipe) as ShapedRecipe;
 
       expect(createdRecipe.id).toContain("shaped_");
-      expect(createdRecipe.id).toContain(String(createdRecipe.result.id));
-      expect(createdRecipe.getId()).toBe(createdRecipe.id);
+      expect(createdRecipe.id).toBe(createdRecipe.id);
     });
   });
 

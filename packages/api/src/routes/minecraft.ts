@@ -2,12 +2,27 @@ import { createRoute } from "@hono/zod-openapi";
 import { gameSchema, inventorySchema } from "@workspace/contracts/minecraft";
 import { z } from "@hono/zod-openapi";
 
+export const generateGameRoute = createRoute({
+  method: "post",
+  path: "/games/generate",
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: gameSchema,
+        },
+      },
+      description: "Generate a new game",
+    },
+  },
+});
+
 export const getGameRoute = createRoute({
   method: "get",
-  path: "/games/{id}",
+  path: "/games/state",
   request: {
-    params: z.object({
-      gameId: z.number().positive().optional().openapi({
+    query: z.object({
+      gameId: z.coerce.number().positive().optional().openapi({
         description: "The ID of the game to retrieve",
         example: 1,
       }),
@@ -27,10 +42,10 @@ export const getGameRoute = createRoute({
 
 export const getInventoryRoute = createRoute({
   method: "get",
-  path: "/games/{id}/inventory",
+  path: "/games/inventory",
   request: {
-    params: z.object({
-      gameId: z.number().positive().openapi({
+    query: z.object({
+      gameId: z.coerce.number().positive().optional().openapi({
         description: "The ID of the game to retrieve the inventory for",
         example: 1,
       }),

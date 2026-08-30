@@ -1,4 +1,4 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
+import { OpenAPIHono, z } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
 import { getTestUsersRoute } from "./routes/users";
 import { getTestUsers } from "./handlers/users";
@@ -7,6 +7,13 @@ import { Database } from "@workspace/db";
 import { Hono } from "hono";
 import { auth, AuthType } from "@workspace/auth";
 import { cors } from "hono/cors";
+import {
+  getGameRoute,
+  getInventoryRoute,
+  generateGameRoute,
+} from "./routes/minecraft";
+import { generateGame, getInventory, getGame } from "./handlers/minecraft";
+import { GameData, InventoryData } from "@workspace/contracts/minecraft";
 
 export const BASE_PATH = "/api";
 
@@ -67,6 +74,26 @@ api.openapi(getTestUsersRoute, async (c) => {
   const usersParams: getTestUsersParams = c.req.valid("query");
   const users: TestUser[] = await getTestUsers(usersParams);
   return c.json(users, 200);
+});
+
+//minecraft
+api.openapi(generateGameRoute, async (c) => {
+  const game: GameData = await generateGame();
+  return c.json(game, 200);
+});
+
+api.openapi(getGameRoute, async (c) => {
+  const getGameParams: z.infer<typeof getGameRoute.request.query> =
+    c.req.valid("query");
+  const game: GameData = await getGame(getGameParams);
+  return c.json(game, 200);
+});
+
+api.openapi(getInventoryRoute, async (c) => {
+  const getInventoryParams: z.infer<typeof getInventoryRoute.request.query> =
+    c.req.valid("query");
+  const inventory: InventoryData = await getInventory(getInventoryParams);
+  return c.json(inventory, 200);
 });
 
 app.route(BASE_PATH, api);

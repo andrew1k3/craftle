@@ -1,5 +1,4 @@
 import MinecraftData from "minecraft-data";
-import MinecraftAssets = require("minecraft-assets");
 import {
   ItemData,
   RecipeData,
@@ -10,7 +9,7 @@ import "dotenv/config";
 
 const mcVersion = process.env.MC_VERSION;
 const mcData: MinecraftData.IndexedData = MinecraftData(mcVersion!);
-const mcAssets = MinecraftAssets(mcVersion!);
+const mcAssets = require("minecraft-assets")(mcVersion!);
 const itemsToRecipes: Map<number, Recipe[]> = new Map();
 const recipeToItem: Map<string, Item> = new Map();
 const items: Map<number, Item> = new Map();
@@ -172,15 +171,23 @@ export class ShapelessRecipe extends Recipe implements ShapelessRecipeData {
 
 export class ShapedRecipe extends Recipe implements ShapedRecipeData {
   public override id: string;
-  public inShape: MinecraftData.Shape;
+  public shape: (Item | null)[][];
 
   public constructor(
-    inShape: MinecraftData.Shape,
+    shape: MinecraftData.Shape,
     result: Item | undefined = undefined,
   ) {
     super(result);
-    this.inShape = inShape;
-    this.id = `shaped_${this.inShape.map((row) => row.join("")).join("_")}`;
+    this.shape = shape.map((shapeRow) =>
+      shapeRow.map((item) => {
+        try {
+          return Item.fromRecipeItem(item);
+        } catch {
+          return null;
+        }
+      }),
+    );
+    this.id = `shaped_${shape.map((row) => row.join("")).join("_")}`;
   }
 
   public static fromShapedRecipe(shapedRecipe: MinecraftData.ShapedRecipe) {

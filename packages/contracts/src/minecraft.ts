@@ -1,5 +1,4 @@
 import { z } from "@hono/zod-openapi";
-import { Shape } from "minecraft-data";
 
 export const itemSchema = z.object({
   id: z.number().int().positive().openapi({ example: 1 }),
@@ -32,6 +31,8 @@ export const itemSchema = z.object({
   }),
 });
 
+export type ItemData = z.infer<typeof itemSchema>;
+
 export const recipeSchema = z.object({
   id: z
     .string()
@@ -52,12 +53,15 @@ export const shapelessRecipeSchema = recipeSchema.extend({
 });
 
 export const shapedRecipeSchema = recipeSchema.extend({
-  inShape: z.custom<Shape>().openapi({
-    description: "The shape of the recipe",
-  }),
+  shape: z
+    .array(z.array(itemSchema.nullable()).min(1).max(3))
+    .min(1)
+    .max(3)
+    .openapi({
+      description: "The shape of the shaped recipe",
+    }),
 });
 
-export type ItemData = z.infer<typeof itemSchema>;
 export type RecipeData = z.infer<typeof recipeSchema>;
 export type ShapelessRecipeData = z.infer<typeof shapelessRecipeSchema>;
 export type ShapedRecipeData = z.infer<typeof shapedRecipeSchema>;

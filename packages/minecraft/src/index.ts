@@ -127,8 +127,6 @@ export abstract class Recipe implements RecipeData {
     return recipeToItem.get(this.id) !== undefined;
   }
 
-  
-
   public static fromItem(item: Item): Recipe[] {
     const recipes: Recipe[] = itemsToRecipes.get(item.id)!;
     if (!recipes) {

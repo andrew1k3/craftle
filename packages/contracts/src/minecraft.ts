@@ -61,3 +61,27 @@ export type ItemData = z.infer<typeof itemSchema>;
 export type RecipeData = z.infer<typeof recipeSchema>;
 export type ShapelessRecipeData = z.infer<typeof shapelessRecipeSchema>;
 export type ShapedRecipeData = z.infer<typeof shapedRecipeSchema>;
+
+export const inventorySchema = z.array(itemSchema).openapi({
+  description: "The inventory of the game",
+});
+
+export const gameSchema = z.object({
+  gameId: z.number().int().positive().openapi({
+    example: 1,
+  }),
+  createdAt: z.iso.datetime().openapi({
+    example: "2023-01-01T00:00:00.000Z",
+  }),
+  isActive: z.boolean().openapi({
+    description: "Whether the game is active or not",
+    example: true,
+  }),
+  expectedItem: itemSchema.openapi({
+    description: "The expected item for the game",
+  }),
+  inventory: inventorySchema,
+});
+
+export type GameData = z.infer<typeof gameSchema>;
+export type InventoryData = z.infer<typeof inventorySchema>;

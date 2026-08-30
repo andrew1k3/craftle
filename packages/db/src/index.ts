@@ -1,8 +1,9 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import * as schema from "@workspace/db/schema";
 import "dotenv/config";
 
-export type Db = ReturnType<typeof drizzle>;
+export type Db = NodePgDatabase<typeof schema>;
 
 const MAX_CONNECTIONS = 10;
 const IDLE_TIMEOUT_MS = 30000; // 30 seconds
@@ -33,6 +34,7 @@ export class Database {
 
     Database.instance = drizzle({
       client: pool,
+      schema,
     });
     return Database.instance;
   }

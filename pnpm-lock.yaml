@@ -117,6 +117,9 @@ importers:
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(@neondatabase/serverless@1.1.0)(@types/pg@8.20.3)(kysely@0.29.4)(pg@8.22.0)
       hono:
         specifier: ^4.12.32
         version: 4.12.32

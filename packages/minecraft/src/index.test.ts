@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import MinecraftData from "minecraft-data";
 
 import {
@@ -53,6 +53,26 @@ describe("minecraft-client", () => {
   });
 
   describe("Item", () => {
+    describe("getRecipes", () => {
+      it("should return recipes for a known item", () => {
+        const item = Item.fromDisplayName("oak_planks");
+        const recipes = item.getRecipes();
+
+        expect(Array.isArray(recipes)).toBe(true);
+        expect(recipes.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("getRandomItem", () => {
+      it("should return a valid item instance", () => {
+        const item = Item.getRandomItem();
+
+        expect(item).toBeInstanceOf(Item);
+        expect(item.id).toBeTypeOf("number");
+        expect(item.displayName).toBeTruthy();
+      });
+    });
+
     describe("fromDisplayName", () => {
       it("should create an item from a display name", () => {
         const item = Item.fromDisplayName("stone");
@@ -277,7 +297,15 @@ describe("minecraft-client", () => {
       const createdRecipe = RecipeFactory.createRecipe(recipe);
 
       expect(Item.fromRecipe(createdRecipe)).toBeInstanceOf(Item);
-      expect(Item.fromRecipe(createdRecipe).id).toBe(createdRecipe.result.id);
+      expect(Item.fromRecipe(createdRecipe).id).toBe(createdRecipe.result!.id);
+    });
+
+    it("should report that mapped recipes have a result", () => {
+      const recipe = RecipeFactory.createRecipe(
+        findRecipe((candidate) => !!candidate && "inShape" in candidate),
+      );
+
+      expect(recipe.hasResult()).toBe(true);
     });
 
     it("should throw when recipes are requested for an unknown item id", () => {
@@ -336,7 +364,7 @@ describe("minecraft-client", () => {
       ) as ShapelessRecipe;
 
       expect(createdRecipe.id).toContain("shapeless_");
-      expect(createdRecipe.id).toContain(String(createdRecipe.result.id));
+      expect(createdRecipe.id).toContain(String(createdRecipe.result!.id));
     });
   });
 
@@ -353,19 +381,38 @@ describe("minecraft-client", () => {
       }
 
       expect(createdRecipe.result).toBeInstanceOf(Item);
-      expect(createdRecipe.inShape).toEqual(recipe.inShape);
-      expect(createdRecipe.inShape).toBeDefined();
+      expect(createdRecipe.shape).toBeDefined();
     });
 
-    it("should generate a recipe id based on the inShape pattern and result", () => {
+    it("should convert shaped recipe cells into item instances and nulls", () => {
+      const recipe = findRecipe(
+        (candidate) => !!candidate && "inShape" in candidate,
+      ) as MinecraftData.ShapedRecipe;
+      const createdRecipe = RecipeFactory.createRecipe(recipe) as ShapedRecipe;
+
+      expect(createdRecipe.shape).toHaveLength(recipe.inShape.length);
+      expect(
+        createdRecipe.shape
+          .flat()
+          .every((cell) => cell === null || cell instanceof Item),
+      ).toBe(true);
+      expect(
+        createdRecipe.shape.flat().map((cell) => cell?.id ?? null),
+      ).toEqual(
+        recipe.inShape
+          .flat()
+          .map((cell) => (cell ? Item.fromRecipeItem(cell).id : null)),
+      );
+    });
+
+    it("should generate a recipe id based on the inShape pattern", () => {
       const recipe = findRecipe(
         (candidate) => !!candidate && "inShape" in candidate,
       ) as MinecraftData.ShapedRecipe;
       const createdRecipe = RecipeFactory.createRecipe(recipe) as ShapedRecipe;
 
       expect(createdRecipe.id).toContain("shaped_");
-      expect(createdRecipe.id).toContain(String(createdRecipe.result.id));
-      expect(createdRecipe.getId()).toBe(createdRecipe.id);
+      expect(createdRecipe.id).toBe(createdRecipe.id);
     });
   });
 
@@ -386,7 +433,7 @@ describe("minecraft-client", () => {
         throw new Error("Expected createdRecipe to be a ShapedRecipe");
       }
       expect(createdRecipe.result).toBeInstanceOf(Item);
-      expect(createdRecipe.inShape).toBeDefined();
+      expect(createdRecipe.shape).toBeDefined();
     });
 
     it("should create a shapeless recipe when recipe data has no inShape", () => {
@@ -406,6 +453,17 @@ describe("minecraft-client", () => {
   });
 
   describe("error handling and initialization guards", () => {
+    it("should throw when MC_VERSION is missing during initialization", async () => {
+      vi.resetModules();
+      vi.stubEnv("MC_VERSION", "");
+
+      await expect(import("./index.js")).rejects.toThrow(
+        "MC_VERSION environment variable is not set",
+      );
+
+      vi.unstubAllEnvs();
+    });
+
     it("should throw when a recipe is mapped to a missing item", () => {
       const missingRecipe = { id: "missing_recipe_id" } as Recipe;
 

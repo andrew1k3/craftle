@@ -1,5 +1,4 @@
 import MinecraftData from "minecraft-data";
-import MinecraftAssets = require("minecraft-assets");
 import {
   ItemData,
   RecipeData,
@@ -10,9 +9,11 @@ import "dotenv/config";
 
 const mcVersion = process.env.MC_VERSION;
 const mcData: MinecraftData.IndexedData = MinecraftData(mcVersion!);
-const mcAssets = MinecraftAssets(mcVersion!);
+const mcAssets = require("minecraft-assets")(mcVersion!);
 const itemsToRecipes: Map<number, Recipe[]> = new Map();
 const recipeToItem: Map<string, Item> = new Map();
+const items: Map<number, Item> = new Map();
+const itemsArray: Item[] = [];
 
 export class Item implements ItemData {
   id: number;
@@ -20,8 +21,9 @@ export class Item implements ItemData {
   displayName: string;
   stackSize: number;
   image: string;
+  count?: number;
 
-  public constructor(id: number) {
+  public constructor(id: number, count: number = 1) {
     const item: MinecraftData.Item | undefined = mcData.items[id];
     if (!item) {
       throw new Error(`Item with id: ${id} does not exist`);
@@ -32,6 +34,15 @@ export class Item implements ItemData {
     this.displayName = item.displayName;
     this.stackSize = item.stackSize;
     this.image = mcAssets.textureContent[this.name].texture;
+    this.count = count;
+  }
+
+  public getRecipes(): Recipe[] {
+    return itemsToRecipes.get(this.id) ?? [];
+  }
+
+  public static getRandomItem(): Item {
+    return itemsArray[Math.floor(Math.random() * itemsArray.length)]!;
   }
 
   public static fromRecipe(recipe: Recipe): Item {
@@ -48,7 +59,7 @@ export class Item implements ItemData {
     if (!recipeItem) {
       throw new Error("recipeItem is null");
     }
-
+    let count = 1;
     let item: MinecraftData.Item;
     if (typeof recipeItem === "number") {
       const foundItem = mcData.items[recipeItem];
@@ -66,7 +77,7 @@ export class Item implements ItemData {
       }
       item = foundItem;
     } else {
-      if (recipeItem?.id == null) {
+      if (!recipeItem.id) {
         throw new Error(
           `Empty id for recipeItem: ${JSON.stringify(recipeItem)}`,
         );
@@ -75,10 +86,11 @@ export class Item implements ItemData {
       if (!foundItem) {
         throw new Error(`Item with id: ${recipeItem.id} does not exist`);
       }
+      count = recipeItem.count ?? 1;
       item = foundItem;
     }
 
-    return new Item(item.id);
+    return new Item(item.id, count);
   }
 
   public static fromId(id: number): Item {
@@ -103,11 +115,15 @@ export class Item implements ItemData {
 }
 
 export abstract class Recipe implements RecipeData {
-  public result: Item;
+  public result?: Item;
   public abstract id: string;
 
-  public constructor(recipe: MinecraftData.Recipe) {
-    this.result = Item.fromRecipeItem(recipe.result);
+  public constructor(result: Item | undefined) {
+    this.result = result;
+  }
+
+  public hasResult(): boolean {
+    return recipeToItem.get(this.id) !== undefined;
   }
 
   public static fromItem(item: Item): Recipe[] {
@@ -131,34 +147,67 @@ export class ShapelessRecipe extends Recipe implements ShapelessRecipeData {
   public override id: string;
   public ingredients: Item[];
 
-  public constructor(shapelessRecipe: MinecraftData.ShapelessRecipe) {
-    super(shapelessRecipe);
-    this.ingredients = shapelessRecipe.ingredients.map(Item.fromRecipeItem);
-    this.id = `shapeless_${this.ingredients.map((ingredient) => ingredient.id).join("_")}__${this.result.id}`;
+  public constructor(
+    ingredients: Item[],
+    result: Item | undefined = undefined,
+  ) {
+    super(result);
+    this.ingredients = ingredients;
+    this.id = `shapeless_${ingredients.map((ingredient) => ingredient.id).join("_")}`;
+  }
+
+  public static fromShapelessRecipe(
+    shapelessRecipe: MinecraftData.ShapelessRecipe,
+  ) {
+    const ingredients: Item[] = shapelessRecipe.ingredients.map(
+      Item.fromRecipeItem,
+    );
+    return new ShapelessRecipe(
+      ingredients,
+      Item.fromRecipeItem(shapelessRecipe.result),
+    );
   }
 }
 
 export class ShapedRecipe extends Recipe implements ShapedRecipeData {
   public override id: string;
-  public inShape: MinecraftData.Shape;
+  public shape: (Item | null)[][];
 
-  public constructor(shapedRecipe: MinecraftData.ShapedRecipe) {
-    super(shapedRecipe);
-    this.inShape = shapedRecipe.inShape;
-    this.id = `shaped_${this.inShape.map((row) => row.join("")).join("_")}__${this.result.id}`;
+  public constructor(
+    shape: MinecraftData.Shape,
+    result: Item | undefined = undefined,
+  ) {
+    super(result);
+    this.shape = shape.map((shapeRow) =>
+      shapeRow.map((item) => {
+        try {
+          return Item.fromRecipeItem(item);
+        } catch {
+          return null;
+        }
+      }),
+    );
+    this.id = `shaped_${shape.map((row) => row.join("")).join("_")}`;
   }
 
-  public getId(): string {
-    return this.id;
+  public static fromShapedRecipe(shapedRecipe: MinecraftData.ShapedRecipe) {
+    return new ShapedRecipe(
+      shapedRecipe.inShape,
+      Item.fromRecipeItem(shapedRecipe.result),
+    );
   }
 }
 
 export class RecipeFactory {
   public static createRecipe(recipe: MinecraftData.Recipe): Recipe {
     if ("inShape" in recipe) {
-      return new ShapedRecipe(recipe);
+      const shapedRecipe = recipe as MinecraftData.ShapedRecipe;
+      return ShapedRecipe.fromShapedRecipe(shapedRecipe);
+    } else if ("ingredients" in recipe) {
+      const shapelessRecipe = recipe as MinecraftData.ShapelessRecipe;
+      return ShapelessRecipe.fromShapelessRecipe(shapelessRecipe);
     } else {
-      return new ShapelessRecipe(recipe);
+      throw new Error(`Unknown recipe type: ${JSON.stringify(recipe)}`);
     }
   }
 }
@@ -177,6 +226,8 @@ function init() {
   Object.entries(mcData.recipes).forEach(([id, mcDataRecipes]) => {
     const recipes: Recipe[] = mcDataRecipes.map(RecipeFactory.createRecipe);
     const item: Item = Item.fromId(Number(id));
+    items.set(item.id, item);
+    itemsArray.push(item);
     itemsToRecipes.set(item.id, recipes);
     recipes.forEach((recipe) => {
       recipeToItem.set(recipe.id, item);

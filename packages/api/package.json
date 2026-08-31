@@ -9,11 +9,12 @@
   "dependencies": {
     "@hono/node-server": "^2.0.11",
     "@hono/zod-openapi": "^1.5.1",
-    "@workspace/db": "workspace:*",
-    "@workspace/contracts": "workspace:*",
     "@workspace/auth": "workspace:*",
+    "@workspace/contracts": "workspace:*",
+    "@workspace/db": "workspace:*",
     "@workspace/minecraft": "workspace:*",
     "dotenv": "^17.4.2",
+    "drizzle-orm": "0.45.2",
     "hono": "^4.12.32",
     "zod": "4.4.3"
   },

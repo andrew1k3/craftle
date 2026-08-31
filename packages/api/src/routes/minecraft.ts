@@ -19,7 +19,7 @@ export const generateGameRoute = createRoute({
 
 export const getGameRoute = createRoute({
   method: "get",
-  path: "/games/state",
+  path: "/games/game",
   request: {
     query: z.object({
       gameId: z.coerce.number().positive().optional().openapi({

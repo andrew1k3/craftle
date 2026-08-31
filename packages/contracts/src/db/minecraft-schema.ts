@@ -10,20 +10,24 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const gamesTable = pgTable("games", {
-  gameId: serial("gameId").primaryKey(),
+  gameId: serial("game_id").primaryKey(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isActive: boolean("is_active").default(true).notNull(),
+  expectedItemId: integer("expected_item_id").notNull(),
   expectedItemName: text("expected_item_name").notNull(),
 });
 
 export const inventoriesTable = pgTable(
   "inventories",
   {
-    gameId: integer("gameId")
+    gameId: integer("game_id")
       .notNull()
       .references(() => gamesTable.gameId, { onDelete: "cascade" }),
     slot: integer("slot").notNull(),
+    count: integer("count").notNull(),
+    itemId: integer("item_id").notNull(),
     itemName: text("item_name").notNull(),
+    fromRecipeName: text("from_recipe_name"),
   },
   (table) => [
     primaryKey({

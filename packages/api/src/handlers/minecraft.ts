@@ -13,55 +13,78 @@ import {
 import { z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import { GameData, InventoryData } from "@workspace/contracts/minecraft";
+import { HTTPException } from "hono/http-exception";
 
 const RED_HERRINGS = 4;
+
+function randomChoice<T>(list: T[]): T | undefined {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+const getIngredients = (
+  recipe: Recipe,
+): { item: Item; fromRecipe: Recipe; count: number }[] => {
+  if (recipe instanceof ShapedRecipe) {
+    const ingredientsCount: Map<number, number> = new Map();
+    recipe.shape.flat().forEach((item) => {
+      if (item) {
+        ingredientsCount.set(item.id, (ingredientsCount.get(item.id) ?? 0) + 1);
+      }
+    });
+    return Array.from(ingredientsCount.entries()).map(([itemId, count]) => {
+      return {
+        item: Item.fromId(itemId),
+        fromRecipe: recipe,
+        count: count,
+      };
+    });
+  } else if (recipe instanceof ShapelessRecipe) {
+    return recipe.ingredients.map((item: Item) => {
+      return { item: item, fromRecipe: recipe, count: item.count ?? 1 };
+    });
+  }
+
+  throw new Error("Recipe is not of type ShapedRecipe or ShapelessRecipe");
+};
 
 export const generateGame = async (): Promise<GameData> => {
   const db: Db = Database.getInstance();
 
+  const expectedItem: Item = Item.getRandomItem();
+
   const [newGame] = await db
     .insert(gamesTable)
     .values({
-      expectedItemName: Item.getRandomItem().name,
+      expectedItemName: expectedItem.name,
+      expectedItemId: expectedItem.id,
       isActive: true,
     })
     .returning();
 
   if (!newGame) {
-    throw new Error("New game wasn't created.");
+    throw new HTTPException(500, { message: "Failed to create a new game" });
   }
 
-  const inventory: Item[] = [];
+  const inventory: { item: Item; fromRecipe: Recipe; count: number }[] = [];
+  inventory.push(
+    ...getIngredients(randomChoice(Recipe.fromItem(expectedItem))!),
+  );
+
   for (let i = 0; i < RED_HERRINGS; i++) {
     const item: Item = Item.getRandomItem();
     const recipes: Recipe[] = item.getRecipes();
-    const chosenRecipe: Recipe | undefined =
-      recipes[Math.floor(Math.random() * recipes.length)];
-
-    if (!chosenRecipe) {
-      throw new Error(`Item doesn't have recipe: ${item.displayName}`);
-    }
-
-    if (chosenRecipe instanceof ShapedRecipe) {
-      const ingredients: Set<Item> = new Set();
-      chosenRecipe.shape.flat().forEach((item) => {
-        if (item) {
-          ingredients.add(item);
-        }
-      });
-      inventory.push(...Array.from<Item>(ingredients));
-    } else if (chosenRecipe instanceof ShapelessRecipe) {
-      chosenRecipe.ingredients.forEach((item: Item) => {
-        inventory.push(item);
-      });
-    }
+    const chosenRecipe: Recipe = randomChoice(recipes)!;
+    inventory.push(...getIngredients(chosenRecipe));
   }
 
-  inventory.forEach(async (item, index) => {
+  inventory.forEach(async ({ item, fromRecipe, count }, index) => {
     await db.insert(inventoriesTable).values({
       gameId: newGame.gameId,
       slot: index,
+      count: count,
       itemName: item.name,
+      itemId: item.id,
+      fromRecipeName: fromRecipe.result?.name,
     });
   });
 
@@ -87,14 +110,14 @@ export const getGame = async ({
       });
 
   if (!game) {
-    throw new Error("Game not found");
+    throw new HTTPException(404, { message: "Game not found" });
   }
 
   return {
     gameId: game.gameId,
     createdAt: game.createdAt.toISOString(),
     isActive: game.isActive,
-    expectedItem: Item.fromName(game.expectedItemName),
+    expectedItem: Item.fromId(game.expectedItemId),
     inventory: game.inventory.map((inventoryItem) =>
       Item.fromName(inventoryItem.itemName),
     ),
@@ -115,10 +138,10 @@ export const getInventory = async ({
   });
 
   if (!inventory) {
-    throw new Error("Inventory not found");
+    throw new HTTPException(404, { message: "Inventory not found" });
   }
 
-  return inventory.map((inventoryItem) =>
-    Item.fromName(inventoryItem.itemName),
+  return inventory.map(
+    (inventoryItem) => new Item(inventoryItem.itemId, inventoryItem.count),
   );
 };

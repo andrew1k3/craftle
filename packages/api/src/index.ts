@@ -52,9 +52,6 @@ api.get("/health", (c) => {
 });
 
 api.onError((err, c) => {
-  console.error("API ERROR:", err);
-  console.error("STACK:", err.stack);
-
   if (err instanceof HTTPException) {
     return err.getResponse();
   }

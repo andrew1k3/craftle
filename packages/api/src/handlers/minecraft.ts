@@ -11,7 +11,7 @@ import {
   getInventoryRoute,
 } from "@workspace/api/routes/minecraft";
 import { z } from "@hono/zod-openapi";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { GameData, InventoryData } from "@workspace/contracts/minecraft";
 import { HTTPException } from "hono/http-exception";
 
@@ -45,6 +45,24 @@ const getIngredients = (
   }
 
   throw new Error("Recipe is not of type ShapedRecipe or ShapelessRecipe");
+};
+
+const getLatestGameId = async (): Promise<number> => {
+  const db: Db = Database.getInstance();
+
+  const response: { gameId: number } | undefined =
+    await db.query.gamesTable.findFirst({
+      columns: {
+        gameId: true,
+      },
+      orderBy: desc(gamesTable.gameId),
+    });
+
+  if (!response) {
+    throw new HTTPException(500, { message: "No games in database" });
+  }
+
+  return response.gameId;
 };
 
 export const generateGame = async (): Promise<GameData> => {
@@ -96,18 +114,16 @@ export const getGame = async ({
 }: z.infer<typeof getGameRoute.request.query> = {}): Promise<GameData> => {
   const db: Db = Database.getInstance();
 
-  const game = gameId
-    ? await db.query.gamesTable.findFirst({
-        where: eq(gamesTable.gameId, gameId),
-        with: {
-          inventory: true,
-        },
-      })
-    : await db.query.gamesTable.findFirst({
-        with: {
-          inventory: true,
-        },
-      });
+  if (!gameId) {
+    gameId = await getLatestGameId();
+  }
+
+  const game = await db.query.gamesTable.findFirst({
+    where: eq(gamesTable.gameId, gameId),
+    with: {
+      inventory: true,
+    },
+  });
 
   if (!game) {
     throw new HTTPException(404, { message: "Game not found" });
@@ -130,7 +146,7 @@ export const getInventory = async ({
   const db: Db = Database.getInstance();
 
   if (!gameId) {
-    gameId = (await getGame()).gameId;
+    gameId = await getLatestGameId();
   }
 
   const inventory = await db.query.inventoriesTable.findMany({

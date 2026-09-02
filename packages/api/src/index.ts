@@ -11,8 +11,16 @@ import {
   getGameRoute,
   getInventoryRoute,
   generateGameRoute,
+  deleteGameRoute,
+  getLatestGameIdRoute,
 } from "./routes/minecraft";
-import { generateGame, getInventory, getGame } from "./handlers/minecraft";
+import {
+  generateGame,
+  getInventory,
+  getGame,
+  deleteGame,
+  getLatestGameId,
+} from "./handlers/minecraft";
 import { GameData, InventoryData } from "@workspace/contracts/minecraft";
 
 export const BASE_PATH = "/api";
@@ -33,7 +41,7 @@ api.use(
   cors({
     origin: "http://localhost:3000",
     allowHeaders: ["Content-Type"],
-    allowMethods: ["POST", "GET", "OPTIONS"],
+    allowMethods: ["POST", "GET", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
     credentials: true,
   }),
@@ -74,6 +82,11 @@ api.openapi(getTestUsersRoute, async (c) => {
 });
 
 //minecraft
+api.openapi(getLatestGameIdRoute, async (c) => {
+  const gameId: number = await getLatestGameId();
+  return c.json(gameId, 200);
+});
+
 api.openapi(generateGameRoute, async (c) => {
   const game: GameData = await generateGame();
   return c.json(game, 200);
@@ -91,6 +104,13 @@ api.openapi(getInventoryRoute, async (c) => {
     c.req.valid("query");
   const inventory: InventoryData = await getInventory(getInventoryParams);
   return c.json(inventory, 200);
+});
+
+api.openapi(deleteGameRoute, async (c) => {
+  const deleteGameParams: z.infer<typeof deleteGameRoute.request.query> =
+    c.req.valid("query");
+  const result = await deleteGame(deleteGameParams);
+  return c.json(result, 200);
 });
 
 app.route(BASE_PATH, api);

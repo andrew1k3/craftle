@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { gameSchema, inventorySchema } from "@workspace/contracts/minecraft";
 import { z } from "@hono/zod-openapi";
-import { authMiddleware } from "../middleware";
+// import { authMiddleware } from "../middleware";
 
 export const getLatestGameIdRoute = createRoute({
   method: "get",
@@ -38,7 +38,7 @@ export const generateGameRoute = createRoute({
 
 export const getGameRoute = createRoute({
   method: "get",
-  middleware: authMiddleware,
+  // middleware: authMiddleware,
   path: "/games/game",
   request: {
     query: z.object({

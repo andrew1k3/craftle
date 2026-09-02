@@ -22,6 +22,9 @@ import {
   getLatestGameId,
 } from "./handlers/minecraft";
 import { GameData, InventoryData } from "@workspace/contracts/minecraft";
+import { createMiddleware } from "hono/factory";
+import { error } from "console";
+import { authMiddleware } from "./middleware";
 
 export const BASE_PATH = "/api";
 

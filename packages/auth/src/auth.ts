@@ -1,7 +1,14 @@
 import { betterAuth } from "better-auth";
+import { anonymous } from "better-auth/plugins";
 import { Database } from "@workspace/db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as schema from "@workspace/db/schema";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
 
 export const auth = betterAuth({
   database: drizzleAdapter(Database.getInstance(), {
@@ -19,6 +26,16 @@ export const auth = betterAuth({
   },
   baseURL: process.env.HONO_API_URL as string,
   trustedOrigins: [process.env.REACT_APP_BASE_URL as string],
+  plugins: [
+    anonymous({
+      generateName: () => {
+        const random_name = uniqueNamesGenerator({
+          dictionaries: [adjectives, colors, animals],
+        });
+        return "anon:" + random_name;
+      },
+    }),
+  ],
 });
 
 export type AuthType = {

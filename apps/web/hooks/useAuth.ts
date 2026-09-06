@@ -1,42 +1,19 @@
 "use client";
 
 import { useContext } from "react";
-import {
-  AuthClient,
-  BetterAuthClientOptions,
-  ErrorContext,
-  RequestContext,
-  SuccessContext,
-} from "better-auth/client";
-import { AuthContext } from "@/components/AuthProvider";
+import { AuthContext } from "@/components/providers/AuthProvider";
 
 export default function useAuth() {
-  const authClient: AuthClient<BetterAuthClientOptions> =
-    useContext(AuthContext)!;
+  const authClient = useContext(AuthContext);
 
-  const handleSignUp = async () => {
-    const { data, error } = await authClient.signUp.email(
-      {
-        email: "test_email@gmail.com",
-        name: "test_name",
-        password: "test_password",
-      },
-      {
-        onRequest: (ctx: RequestContext) => {
-          console.log("Request: ", ctx);
-        },
-        onSuccess: (ctx: SuccessContext) => {
-          console.log("Success: ", ctx);
-        },
-        onError: (ctx: ErrorContext) => {
-          console.log("Error: ", ctx);
-        },
-      },
-    );
+  if (!authClient) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
 
-    console.log(data);
-    console.log(error);
+  const session = authClient.useSession();
+
+  return {
+    authClient,
+    session,
   };
-
-  return { authClient, handleSignUp };
 }

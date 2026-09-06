@@ -1,7 +1,11 @@
-import { createAuthClient as _createAuthClient } from "better-auth/client";
+import { createAuthClient as createBetterAuthClient } from "better-auth/react";
+import { anonymousClient } from "better-auth/client/plugins";
 
-export function createAuthClient(baseUrl: string) {
-  return _createAuthClient({
-    baseURL: baseUrl,
+export function createAuthClient(baseURL: string) {
+  return createBetterAuthClient({
+    baseURL,
+    plugins: [anonymousClient()],
   });
 }
+
+export type AppAuthClient = ReturnType<typeof createAuthClient>;

@@ -35,6 +35,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@hono/client':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@workspace/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       '@workspace/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -1197,6 +1203,11 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@hono/client@0.0.3':
+    resolution: {integrity: sha512-1TrYdppLelv39uCqevePjKUeyf4AoKYWQ+/qfNtRzY8OPBur78XA1Gtv3Pi08uXT6GOuQN5fi3IFUwMsxnEhcQ==}
+    engines: {node: '>=18'}
+    deprecated: The client feature has been integrated into the Hono core. Please use hono/client instead.
 
   '@hono/node-server@1.19.15':
     resolution: {integrity: sha512-Za2ai6TLdKjUvnur+eenO6nuYYipVAEhyCAdaV8IRvmU9kK8crOZUSYvIXn72E4f8fJqyAbpcJuTsYYmZp9Deg==}
@@ -5237,6 +5248,8 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@hono/client@0.0.3': {}
 
   '@hono/node-server@1.19.15(hono@4.12.31)':
     dependencies:

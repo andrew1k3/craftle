@@ -7,7 +7,7 @@ import { createAuthClient, type AppAuthClient } from "@/lib/auth-client";
 export const AuthContext = createContext<AppAuthClient | null>(null);
 
 type AuthProviderProps = PropsWithChildren<{
-  baseURL: string;
+  baseURL: string | undefined;
 }>;
 
 export function AuthProvider({ baseURL, children }: AuthProviderProps) {

@@ -117,4 +117,5 @@ app.route(BASE_PATH, api);
 
 init();
 
+export type AppType = typeof app.routes;
 export default app;

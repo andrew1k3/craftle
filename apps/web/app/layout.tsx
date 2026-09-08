@@ -29,7 +29,7 @@ export default function RootLayout({
       )}
     >
       <body>
-        <AuthProvider baseURL={process.env.HONO_API_URL!}>
+        <AuthProvider baseURL={process.env.NEXT_PUBLIC_API_BASE_URL!}>
           <ThemeProvider>{children}</ThemeProvider>
         </AuthProvider>
       </body>

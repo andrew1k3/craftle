@@ -3,9 +3,9 @@
   "ui": "stream-with-experimental-timestamps",
   "globalEnv": [
     "DATABASE_URL",
-    "REACT_APP_BASE_URL",
+    "NEXT_PUBLIC_APP_BASE_URL",
     "GITHUB_CLIENT_SECRET",
-    "HONO_API_URL",
+    "NEXT_PUBLIC_API_BASE_URL",
     "GITHUB_CLIENT_ID",
     "MC_VERSION"
   ],

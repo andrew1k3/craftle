@@ -1,11 +1,11 @@
-import app, { BASE_PATH } from "../";
+import app, { API_PATH } from "../";
 import { describe, it, expect } from "vitest";
 import { buildQueryParams } from "./utils";
 import { getTestUsersParams } from "@workspace/contracts/users";
 
 describe("/testUsers", () => {
   it("should get all users", async () => {
-    const res = await app.request(`${BASE_PATH}/testUsers`);
+    const res = await app.request(`${API_PATH}/testUsers`);
 
     expect(res?.status).toBe(200);
     expect(await res?.json()).not.toBeNull();
@@ -17,7 +17,7 @@ describe("/testUsers", () => {
       limit: 10,
     };
     const res = await app.request(
-      `${BASE_PATH}/testUsers${buildQueryParams(options)}`,
+      `${API_PATH}/testUsers${buildQueryParams(options)}`,
     );
     const data = await res.json();
 
@@ -32,7 +32,7 @@ describe("/testUsers", () => {
       limit: 10,
     };
     const res = await app.request(
-      `${BASE_PATH}/testUsers${buildQueryParams(options)}`,
+      `${API_PATH}/testUsers${buildQueryParams(options)}`,
     );
 
     expect(res?.status).toBe(400);
@@ -44,7 +44,7 @@ describe("/testUsers", () => {
       limit: -10,
     };
     const res = await app.request(
-      `${BASE_PATH}/testUsers${buildQueryParams(options)}`,
+      `${API_PATH}/testUsers${buildQueryParams(options)}`,
     );
 
     expect(res?.status).toBe(400);
@@ -56,7 +56,7 @@ describe("/testUsers", () => {
       limit: 10,
     };
     const res = await app.request(
-      `${BASE_PATH}/testUsers${buildQueryParams(options)}`,
+      `${API_PATH}/testUsers${buildQueryParams(options)}`,
     );
 
     expect(res?.status).toBe(400);
@@ -68,7 +68,7 @@ describe("/testUsers", () => {
       limit: 10,
     };
     const res1 = await app.request(
-      `${BASE_PATH}/testUsers${buildQueryParams(options1)}`,
+      `${API_PATH}/testUsers${buildQueryParams(options1)}`,
     );
     const data1 = await res1.json();
 
@@ -77,7 +77,7 @@ describe("/testUsers", () => {
       limit: 10,
     };
     const res2 = await app.request(
-      `${BASE_PATH}/testUsers${buildQueryParams(options2)}`,
+      `${API_PATH}/testUsers${buildQueryParams(options2)}`,
     );
     const data2 = await res2.json();
 

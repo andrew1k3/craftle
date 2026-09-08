@@ -1,6 +1,11 @@
 "use client";
 
-import { createContext, useEffect, useState, type PropsWithChildren } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+  type PropsWithChildren,
+} from "react";
 
 import { createAuthClient, type AppAuthClient } from "@/lib/auth-client";
 

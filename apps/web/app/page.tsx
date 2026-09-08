@@ -2,9 +2,24 @@
 
 import { Button } from "@workspace/ui/components/button";
 import useAuth from "@/hooks/useAuth";
+import { getAuthedTestUsers } from "@/lib/api-client";
+import { useState } from "react";
+import { TestUser } from "@workspace/contracts/users";
 
 export default function Page() {
   const { session } = useAuth();
+
+  const [authedUsers, setAuthedUsers] = useState<TestUser[] | null>(null);
+
+  const handleFetchAuthedUsers = async () => {
+    try {
+      const users = await getAuthedTestUsers({ limit: 5, offset: 0 });
+      console.log("Fetched authed users:", users);
+      setAuthedUsers(users);
+    } catch (error) {
+      console.error("Error fetching authed users:", error);
+    }
+  };
 
   return (
     <div className="flex min-h-svh p-6">
@@ -22,8 +37,25 @@ export default function Page() {
         <div>
           <h2 className="font-medium">Session Info</h2>
           <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs">
-            {JSON.stringify(session, null, 2)}
+            {session.isPending ? (
+              <p>Loading session...</p>
+            ) : (
+              JSON.stringify(session, null, 2)
+            )}
           </pre>
+        </div>
+        <div>
+          <h2 className="font-medium">Authed fetch</h2>
+          <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs">
+            {!authedUsers ? (
+              <p>Nothing fetched...</p>
+            ) : (
+              JSON.stringify(authedUsers, null, 2)
+            )}
+          </pre>
+          <Button onClick={handleFetchAuthedUsers} className="mt-2">
+            Fetch Authed Users
+          </Button>
         </div>
       </div>
     </div>

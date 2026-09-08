@@ -1,6 +1,6 @@
 import { OpenAPIHono, z } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
-import { getTestUsersRoute } from "./routes/users";
+import { getAuthedTestUserRoute, getTestUsersRoute } from "./routes/users";
 import { getTestUsers } from "./handlers/users";
 import { getTestUsersParams, TestUser } from "@workspace/contracts/users";
 import { Database } from "@workspace/db";
@@ -23,7 +23,7 @@ import {
 } from "./handlers/minecraft";
 import { GameData, InventoryData } from "@workspace/contracts/minecraft";
 
-export const BASE_PATH = "/api";
+export const API_PATH = "/api";
 
 function init() {
   Database.getInstance();
@@ -75,6 +75,11 @@ export const routes = api
     const users: TestUser[] = await getTestUsers(usersParams);
     return c.json(users, 200);
   })
+  .openapi(getAuthedTestUserRoute, async (c) => {
+    const usersParams: getTestUsersParams = c.req.valid("query");
+    const users: TestUser[] = await getTestUsers(usersParams);
+    return c.json(users, 200);
+  })
   //minecraft
   .openapi(getLatestGameIdRoute, async (c) => {
     const gameId: number = await getLatestGameId();
@@ -109,7 +114,7 @@ export const routes = api
   //auth
   .on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 
-app.route(BASE_PATH, api);
+app.route(API_PATH, api);
 
 init();
 

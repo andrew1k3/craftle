@@ -1,9 +1,9 @@
-import app, { BASE_PATH } from "../";
+import app, { API_PATH } from "../";
 import { describe, it, expect } from "vitest";
 
 describe("/games/game", () => {
   it("should get the game state", async () => {
-    const res = await app.request(`${BASE_PATH}/games/game`);
+    const res = await app.request(`${API_PATH}/games/game`);
     const data = await res.json();
 
     expect(res?.status).toBe(200);
@@ -16,7 +16,7 @@ describe("/games/game", () => {
   });
 
   it("should get the game state with a specific gameId", async () => {
-    const res = await app.request(`${BASE_PATH}/games/game?gameId=1`);
+    const res = await app.request(`${API_PATH}/games/game?gameId=1`);
     const data = await res.json();
 
     expect(res?.status).toBe(200);
@@ -31,13 +31,13 @@ describe("/games/game", () => {
   });
 
   it("should return 400 for invalid gameId", async () => {
-    const res = await app.request(`${BASE_PATH}/games/game?gameId=-1`);
+    const res = await app.request(`${API_PATH}/games/game?gameId=-1`);
 
     expect(res?.status).toBe(400);
   });
 
   it("should return 400 for non-numeric gameId", async () => {
-    const res = await app.request(`${BASE_PATH}/games/game?gameId=abc`);
+    const res = await app.request(`${API_PATH}/games/game?gameId=abc`);
 
     expect(res?.status).toBe(400);
   });
@@ -45,7 +45,7 @@ describe("/games/game", () => {
 
 describe("/games/inventory", () => {
   it("should get the game inventory", async () => {
-    const res = await app.request(`${BASE_PATH}/games/inventory`);
+    const res = await app.request(`${API_PATH}/games/inventory`);
     const data = await res.json();
 
     expect(res?.status).toBe(200);
@@ -54,7 +54,7 @@ describe("/games/inventory", () => {
   });
 
   it("should get the game inventory with a specific gameId", async () => {
-    const res = await app.request(`${BASE_PATH}/games/inventory?gameId=1`);
+    const res = await app.request(`${API_PATH}/games/inventory?gameId=1`);
     const data = await res.json();
 
     expect(res?.status).toBe(200);
@@ -63,13 +63,13 @@ describe("/games/inventory", () => {
   });
 
   it("should return 400 for invalid gameId", async () => {
-    const res = await app.request(`${BASE_PATH}/games/inventory?gameId=-1`);
+    const res = await app.request(`${API_PATH}/games/inventory?gameId=-1`);
 
     expect(res?.status).toBe(400);
   });
 
   it("should return 400 for non-numeric gameId", async () => {
-    const res = await app.request(`${BASE_PATH}/games/inventory?gameId=abc`);
+    const res = await app.request(`${API_PATH}/games/inventory?gameId=abc`);
 
     expect(res?.status).toBe(400);
   });

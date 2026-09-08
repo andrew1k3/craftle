@@ -7,6 +7,7 @@ import {
 import { Database, Db } from "@workspace/db";
 import { gamesTable, inventoriesTable } from "@workspace/db/schema";
 import {
+  deleteGameRoute,
   getGameRoute,
   getInventoryRoute,
 } from "@workspace/api/routes/minecraft";
@@ -21,9 +22,7 @@ function randomChoice<T>(list: T[]): T | undefined {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-const getIngredients = (
-  recipe: Recipe,
-): { item: Item; fromRecipe: Recipe; count: number }[] => {
+function getIngredients(recipe: Recipe): { item: Item; count: number }[] {
   if (recipe instanceof ShapedRecipe) {
     const ingredientsCount: Map<number, number> = new Map();
     recipe.shape.flat().forEach((item) => {
@@ -34,20 +33,19 @@ const getIngredients = (
     return Array.from(ingredientsCount.entries()).map(([itemId, count]) => {
       return {
         item: Item.fromId(itemId),
-        fromRecipe: recipe,
         count: count,
       };
     });
   } else if (recipe instanceof ShapelessRecipe) {
     return recipe.ingredients.map((item: Item) => {
-      return { item: item, fromRecipe: recipe, count: item.count ?? 1 };
+      return { item: item, count: item.count ?? 1 };
     });
   }
 
   throw new Error("Recipe is not of type ShapedRecipe or ShapelessRecipe");
-};
+}
 
-const getLatestGameId = async (): Promise<number> => {
+export const getLatestGameId = async (): Promise<number> => {
   const db: Db = Database.getInstance();
 
   const response: { gameId: number } | undefined =
@@ -84,27 +82,47 @@ export const generateGame = async (): Promise<GameData> => {
   }
 
   const inventory: { item: Item; fromRecipe: Recipe; count: number }[] = [];
-  inventory.push(
-    ...getIngredients(randomChoice(Recipe.fromItem(expectedItem))!),
-  );
+  const chosenRecipe: Recipe = randomChoice(Recipe.fromItem(expectedItem))!;
+  getIngredients(chosenRecipe).forEach((ingredient) => {
+    inventory.push({
+      item: ingredient.item,
+      fromRecipe: chosenRecipe,
+      count: ingredient.count,
+    });
+  });
 
   for (let i = 0; i < RED_HERRINGS; i++) {
     const item: Item = Item.getRandomItem();
     const recipes: Recipe[] = item.getRecipes();
     const chosenRecipe: Recipe = randomChoice(recipes)!;
-    inventory.push(...getIngredients(chosenRecipe));
+    getIngredients(chosenRecipe).forEach((ingredient) => {
+      inventory.push({
+        item: ingredient.item,
+        fromRecipe: chosenRecipe,
+        count: ingredient.count,
+      });
+    });
   }
 
-  inventory.forEach(async ({ item, fromRecipe, count }, index) => {
-    await db.insert(inventoriesTable).values({
-      gameId: newGame.gameId,
-      slot: index,
-      count: count,
-      itemName: item.name,
-      itemId: item.id,
-      fromRecipeName: fromRecipe.result?.name,
-    });
-  });
+  inventory.forEach(
+    async (
+      {
+        item,
+        fromRecipe,
+        count,
+      }: { item: Item; fromRecipe: Recipe; count: number },
+      index,
+    ) => {
+      await db.insert(inventoriesTable).values({
+        gameId: newGame.gameId,
+        slot: index,
+        count: count,
+        itemName: item.name,
+        itemId: item.id,
+        fromRecipeName: fromRecipe.result?.name,
+      });
+    },
+  );
 
   return await getGame({ gameId: newGame.gameId });
 };
@@ -160,4 +178,33 @@ export const getInventory = async ({
   return inventory.map(
     (inventoryItem) => new Item(inventoryItem.itemId, inventoryItem.count),
   );
+};
+
+export const deleteGame = async ({
+  gameId,
+}: z.infer<typeof deleteGameRoute.request.query>): Promise<{
+  message: string;
+}> => {
+  const db: Db = Database.getInstance();
+
+  if (!gameId) {
+    gameId = await getLatestGameId();
+  }
+
+  const result = await db
+    .delete(gamesTable)
+    .where(eq(gamesTable.gameId, gameId))
+    .returning();
+
+  console.log(result);
+
+  if (!result) {
+    throw new HTTPException(500, { message: "Failed to delete the game" });
+  }
+
+  if (result.length === 0) {
+    throw new HTTPException(404, { message: "Game not found" });
+  }
+
+  return { message: `Game ${gameId} deleted successfully` };
 };

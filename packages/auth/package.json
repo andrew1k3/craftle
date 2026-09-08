@@ -2,8 +2,9 @@
   "name": "@workspace/auth",
   "version": "0.0.0",
   "dependencies": {
+    "@workspace/db": "workspace:*",
     "better-auth": "^1.6.25",
-    "@workspace/db": "workspace:*"
+    "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
@@ -12,6 +13,9 @@
     "typescript": "^5"
   },
   "exports": {
-    "." : "./src/auth.ts"
+    ".": "./src/auth.ts"
+  },
+  "scripts": {
+    "generate": "pnpx auth generate"
   }
 }

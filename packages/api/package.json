@@ -39,5 +39,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage"
+  },
+  "exports": {
+    ".": "./src/index.ts"
   }
 }

@@ -4,7 +4,7 @@ import { Button } from "@workspace/ui/components/button";
 import useAuth from "@/hooks/useAuth";
 
 export default function Page() {
-  const { handleSignUp } = useAuth();
+  const { session } = useAuth();
 
   return (
     <div className="flex min-h-svh p-6">
@@ -18,7 +18,13 @@ export default function Page() {
         <div className="text-muted-foreground font-mono text-xs">
           (Press <kbd>d</kbd> to toggle dark mode!)
         </div>
-        <Button onClick={handleSignUp}>Sign Up!</Button>
+        {/* <Button onClick={handleSignUp}>Sign Up!</Button> */}
+        <div>
+          <h2 className="font-medium">Session Info</h2>
+          <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs">
+            {JSON.stringify(session, null, 2)}
+          </pre>
+        </div>
       </div>
     </div>
   );

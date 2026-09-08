@@ -10,7 +10,7 @@ import {
   deleteGameRoute,
   getGameRoute,
   getInventoryRoute,
-} from "@workspace/api/routes/minecraft";
+} from "../routes/minecraft";
 import { z } from "@hono/zod-openapi";
 import { desc, eq } from "drizzle-orm";
 import { GameData, InventoryData } from "@workspace/contracts/minecraft";

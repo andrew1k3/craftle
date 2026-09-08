@@ -28,8 +28,8 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 365, // expires after 1 year of inactivity
     updateAge: 60 * 60 * 24 * 7, // extend it after 7 days of activity
   },
-  baseURL: process.env.HONO_API_URL as string,
-  trustedOrigins: [process.env.REACT_APP_BASE_URL as string],
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL as string,
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_BASE_URL as string],
   plugins: [
     anonymous({
       generateName: () => {

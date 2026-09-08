@@ -29,10 +29,10 @@ function init() {
   Database.getInstance();
 }
 
-const app: Hono<{ Variables: AuthType }> = new Hono<{ Variables: AuthType }>({
+const app = new Hono<{ Variables: AuthType }>({
   strict: false,
 });
-const api: OpenAPIHono<{ Variables: AuthType }> = new OpenAPIHono<{
+const api = new OpenAPIHono<{
   Variables: AuthType;
 }>();
 
@@ -55,14 +55,11 @@ api.doc("/", {
   },
 });
 
-api.get("/health", (c) => {
-  return c.json({ status: "ok" }, 200);
-});
-
 api.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
+
   return c.json(
     {
       message: "Internal server error",
@@ -71,51 +68,50 @@ api.onError((err, c) => {
   );
 });
 
-//auth
-api.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
-
-//testUsers
-api.openapi(getTestUsersRoute, async (c) => {
-  const usersParams: getTestUsersParams = c.req.valid("query");
-  const users: TestUser[] = await getTestUsers(usersParams);
-  return c.json(users, 200);
-});
-
-//minecraft
-api.openapi(getLatestGameIdRoute, async (c) => {
-  const gameId: number = await getLatestGameId();
-  return c.json(gameId, 200);
-});
-
-api.openapi(generateGameRoute, async (c) => {
-  const game: GameData = await generateGame();
-  return c.json(game, 200);
-});
-
-api.openapi(getGameRoute, async (c) => {
-  const getGameParams: z.infer<typeof getGameRoute.request.query> =
-    c.req.valid("query");
-  const game: GameData = await getGame(getGameParams);
-  return c.json(game, 200);
-});
-
-api.openapi(getInventoryRoute, async (c) => {
-  const getInventoryParams: z.infer<typeof getInventoryRoute.request.query> =
-    c.req.valid("query");
-  const inventory: InventoryData = await getInventory(getInventoryParams);
-  return c.json(inventory, 200);
-});
-
-api.openapi(deleteGameRoute, async (c) => {
-  const deleteGameParams: z.infer<typeof deleteGameRoute.request.query> =
-    c.req.valid("query");
-  const result = await deleteGame(deleteGameParams);
-  return c.json(result, 200);
-});
+export const routes = api
+  //testUsers
+  .openapi(getTestUsersRoute, async (c) => {
+    const usersParams: getTestUsersParams = c.req.valid("query");
+    const users: TestUser[] = await getTestUsers(usersParams);
+    return c.json(users, 200);
+  })
+  //minecraft
+  .openapi(getLatestGameIdRoute, async (c) => {
+    const gameId: number = await getLatestGameId();
+    return c.json(gameId, 200);
+  })
+  .openapi(generateGameRoute, async (c) => {
+    const game: GameData = await generateGame();
+    return c.json(game, 200);
+  })
+  .openapi(getGameRoute, async (c) => {
+    const getGameParams: z.infer<typeof getGameRoute.request.query> =
+      c.req.valid("query");
+    const game: GameData = await getGame(getGameParams);
+    return c.json(game, 200);
+  })
+  .openapi(getInventoryRoute, async (c) => {
+    const getInventoryParams: z.infer<typeof getInventoryRoute.request.query> =
+      c.req.valid("query");
+    const inventory: InventoryData = await getInventory(getInventoryParams);
+    return c.json(inventory, 200);
+  })
+  .openapi(deleteGameRoute, async (c) => {
+    const deleteGameParams: z.infer<typeof deleteGameRoute.request.query> =
+      c.req.valid("query");
+    const result = await deleteGame(deleteGameParams);
+    return c.json(result, 200);
+  })
+  //health
+  .get("/health", (c) => {
+    return c.json({ status: "ok" }, 200);
+  })
+  //auth
+  .on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 
 app.route(BASE_PATH, api);
 
 init();
 
-export type AppType = typeof app.routes;
+export type AppType = typeof routes;
 export default app;

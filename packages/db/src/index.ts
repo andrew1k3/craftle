@@ -5,9 +5,9 @@ import "dotenv/config";
 
 export type Db = NodePgDatabase<typeof schema>;
 
-const MAX_CONNECTIONS = 10;
-const IDLE_TIMEOUT_MS = 30000; // 30 seconds
-const CONNECTION_TIMEOUT_MS = 2000; // 2 seconds
+const MAX_CONNECTIONS = 2;
+const IDLE_TIMEOUT_MS = 30_000; // 30 seconds
+const CONNECTION_TIMEOUT_MS = 10_000; // 10 seconds
 
 export class Database {
   private static instance: Db;
@@ -30,6 +30,10 @@ export class Database {
       max: MAX_CONNECTIONS,
       idleTimeoutMillis: IDLE_TIMEOUT_MS,
       connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
+    });
+
+    pool.on("error", (err) => {
+      console.error("idle client error", err);
     });
 
     Database.instance = drizzle({

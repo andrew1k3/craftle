@@ -1,6 +1,11 @@
 import { createRoute } from "@hono/zod-openapi";
-import { gameSchema, inventorySchema } from "@workspace/contracts/minecraft";
+import {
+  gameSchema,
+  inventorySchema,
+  ItemGuessStateSchema,
+} from "@workspace/contracts/minecraft";
 import { z } from "@hono/zod-openapi";
+import { guessTable } from "@workspace/contracts/db-schema/minecraft-schema";
 
 export const getLatestGameIdRoute = createRoute({
   method: "get",
@@ -106,3 +111,26 @@ export const deleteGameRoute = createRoute({
     },
   },
 });
+
+// export const guessRoute = createRoute({
+//   method: "post",
+//   path: "/games/guess",
+//   request: {
+//     body: guessTable.$inferInsert()
+//   },
+//   responses: {
+//     200: {
+//       content: {
+//         "application/json": {
+//           schema: z.object({
+//             result: ItemGuessStateSchema,
+//             win: z.boolean(),
+//             turn: z.number(),
+//             message: z.string(),
+//           }),
+//         },
+//       },
+//       description: "Guess result",
+//     },
+//   },
+// });

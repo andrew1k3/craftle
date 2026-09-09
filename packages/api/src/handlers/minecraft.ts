@@ -5,7 +5,7 @@ import {
   ShapelessRecipe,
 } from "@workspace/minecraft";
 import { Database, Db } from "@workspace/db";
-import { gamesTable, inventoriesTable } from "@workspace/db/schema";
+import { gameTable, inventoryTable } from "@workspace/db/schema";
 import {
   deleteGameRoute,
   getGameRoute,
@@ -49,11 +49,11 @@ export const getLatestGameId = async (): Promise<number> => {
   const db: Db = Database.getInstance();
 
   const response: { gameId: number } | undefined =
-    await db.query.gamesTable.findFirst({
+    await db.query.gameTable.findFirst({
       columns: {
         gameId: true,
       },
-      orderBy: desc(gamesTable.gameId),
+      orderBy: desc(gameTable.gameId),
     });
 
   if (!response) {
@@ -69,7 +69,7 @@ export const generateGame = async (): Promise<GameData> => {
   const expectedItem: Item = Item.getRandomItem();
 
   const [newGame] = await db
-    .insert(gamesTable)
+    .insert(gameTable)
     .values({
       expectedItemName: expectedItem.name,
       expectedItemId: expectedItem.id,
@@ -113,7 +113,7 @@ export const generateGame = async (): Promise<GameData> => {
       }: { item: Item; fromRecipe: Recipe; count: number },
       index,
     ) => {
-      await db.insert(inventoriesTable).values({
+      await db.insert(inventoryTable).values({
         gameId: newGame.gameId,
         slot: index,
         count: count,
@@ -136,8 +136,8 @@ export const getGame = async ({
     gameId = await getLatestGameId();
   }
 
-  const game = await db.query.gamesTable.findFirst({
-    where: eq(gamesTable.gameId, gameId),
+  const game = await db.query.gameTable.findFirst({
+    where: eq(gameTable.gameId, gameId),
     with: {
       inventory: true,
     },
@@ -167,8 +167,8 @@ export const getInventory = async ({
     gameId = await getLatestGameId();
   }
 
-  const inventory = await db.query.inventoriesTable.findMany({
-    where: eq(inventoriesTable.gameId, gameId),
+  const inventory = await db.query.inventoryTable.findMany({
+    where: eq(inventoryTable.gameId, gameId),
   });
 
   if (!inventory) {
@@ -192,8 +192,8 @@ export const deleteGame = async ({
   }
 
   const result = await db
-    .delete(gamesTable)
-    .where(eq(gamesTable.gameId, gameId))
+    .delete(gameTable)
+    .where(eq(gameTable.gameId, gameId))
     .returning();
 
   console.log(result);

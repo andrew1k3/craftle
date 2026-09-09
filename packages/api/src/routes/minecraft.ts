@@ -2,10 +2,10 @@ import { createRoute } from "@hono/zod-openapi";
 import {
   gameSchema,
   inventorySchema,
-  ItemGuessStateSchema,
+  // ItemGuessStateSchema,
 } from "@workspace/contracts/minecraft";
 import { z } from "@hono/zod-openapi";
-import { guessTable } from "@workspace/contracts/db-schema/minecraft-schema";
+// import { guessTable } from "@workspace/contracts/db-schema/minecraft-schema";
 
 export const getLatestGameIdRoute = createRoute({
   method: "get",

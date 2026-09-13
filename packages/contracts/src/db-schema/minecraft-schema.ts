@@ -58,7 +58,7 @@ export const guessTable = pgTable(
   ],
 );
 
-// TODO: Add relations for the guess table to the game table and user table
+// TODO: add a table for a user's current game, including turn, game being active, gameId, and have the game and guesses as relations.
 
 export const inventoryRelations = relations(inventoryTable, ({ one }) => ({
   game: one(gameTable, {
@@ -69,11 +69,17 @@ export const inventoryRelations = relations(inventoryTable, ({ one }) => ({
 
 export const gameRelations = relations(gameTable, ({ many }) => ({
   inventory: many(inventoryTable),
+  guesses: many(guessTable),
 }));
 
+// one game can have many guesses, and one user can have many guesses
 export const guessRelations = relations(guessTable, ({ one }) => ({
   game: one(gameTable, {
     fields: [guessTable.gameId],
     references: [gameTable.gameId],
+  }),
+  user: one(user, {
+    fields: [guessTable.userId],
+    references: [user.id],
   }),
 }));

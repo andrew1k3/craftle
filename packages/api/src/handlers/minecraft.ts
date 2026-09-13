@@ -5,18 +5,28 @@ import {
   ShapelessRecipe,
 } from "@workspace/minecraft";
 import { Database, Db } from "@workspace/db";
-import { gameTable, inventoryTable } from "@workspace/db/schema";
+import { gameTable, guessTable, inventoryTable } from "@workspace/db/schema";
 import {
   deleteGameRoute,
   getGameRoute,
+  getGuessesRoute,
   getInventoryRoute,
 } from "../routes/minecraft";
 import { z } from "@hono/zod-openapi";
-import { desc, eq } from "drizzle-orm";
-import { GameData, InventoryData } from "@workspace/contracts/minecraft";
+import { desc, eq, and } from "drizzle-orm";
+import {
+  GameData,
+  GuessData,
+  GuessParamsData,
+  GuessResultData,
+  InventoryData,
+  ItemData,
+} from "@workspace/contracts/minecraft";
 import { HTTPException } from "hono/http-exception";
+import { User } from "@workspace/auth";
 
-const RED_HERRINGS = 4;
+export const RED_HERRINGS = 4;
+export const MAX_TURNS = 5;
 
 function randomChoice<T>(list: T[]): T | undefined {
   return list[Math.floor(Math.random() * list.length)];
@@ -208,3 +218,159 @@ export const deleteGame = async ({
 
   return { message: `Game ${gameId} deleted successfully` };
 };
+
+export const getGuesses = async (
+  { gameId }: z.infer<typeof getGuessesRoute.request.query>,
+  user: User,
+): Promise<GuessData[]> => {
+  const db: Db = Database.getInstance();
+
+  if (!gameId) {
+    gameId = await getLatestGameId();
+  }
+
+  const userId = user.id;
+
+  if (userId === "") {
+    throw new Error("User id is an empty string");
+  }
+
+  const result = await db.query.guessTable.findMany({
+    where: and(eq(guessTable.userId, userId), eq(guessTable.gameId, gameId)),
+  });
+
+  return result;
+};
+
+export const guess = async (
+  { gameId, turn, guessItemId, guessRecipe }: GuessParamsData,
+  user: User,
+): Promise<GuessResultData> => {
+  // const db: Db = Database.getInstance();
+
+  const lastetGameId = await getLatestGameId();
+
+  if (gameId != lastetGameId) {
+    throw new HTTPException(403, {
+      message: `User guessed for a stale game id. Expected ${lastetGameId}, got ${gameId}`,
+    });
+  }
+
+  await parseGuess({ gameId, turn, guessItemId, guessRecipe }, user);
+
+  // // test if this is the correct guess (retrieve game stats)
+  // if (isGuessCorrect(guessItemId)) {
+  // }
+
+  // // place guess in table
+
+
+
+  // fake atm
+  return {
+    result: [
+      ["correct", "incorrect"],
+      ["incorrect", "correct"],
+    ],
+    win: false,
+    turn: turn + 1,
+    message: "Guess result",
+  };
+};
+
+async function parseGuess(
+  { gameId, turn, guessItemId, guessRecipe }: GuessParamsData,
+  user: User,
+): Promise<void> {
+  const latestGame: GameData = await getGame({ gameId });
+
+  if (!latestGame.isActive) {
+    throw new HTTPException(403, {
+      message: "Game is not active",
+    });
+  }
+
+  const previousGuesses: GuessData[] = await getGuesses({ gameId }, user);
+
+  if (previousGuesses.length === 0) {
+    return;
+  }
+
+  const latestGuess: GuessData = previousGuesses.sort(
+    (a, b) => b.turn - a.turn,
+  )[0]!;
+  const lastTurn = latestGuess.turn;
+
+  if (turn !== lastTurn + 1) {
+    throw new HTTPException(403, {
+      message: `Turn doesn't match the latest turn. Expected ${lastTurn + 1}, got ${turn}`,
+    });
+  }
+
+  if (turn > MAX_TURNS) {
+    throw new HTTPException(403, {
+      message: `Turn exceeds the maximum number of turns. Expected ${MAX_TURNS}, got ${turn}`,
+    });
+  }
+
+  let item: Item;
+  try {
+    item = Item.fromId(guessItemId);
+  } catch {
+    throw new HTTPException(403, {
+      message: `Guessed item id couldn't be parsed. Item id: ${guessItemId}`,
+    });
+  }
+
+  let recipes: Recipe[];
+  try {
+    recipes = Recipe.fromItemId(guessItemId);
+  } catch {
+    throw new HTTPException(403, {
+      message: `Guessed item id doesn't have recipes that exist. Item id: ${guessItemId}`,
+    });
+  }
+
+  if (
+    item
+      .getRecipes()
+      .map((recipe) => recipe.id)
+      .includes(guessRecipe)
+  ) {
+    throw new HTTPException(403, {
+      message: `Guessed recipe id doesn't match any of the recipes for the guessed item. Item id: ${guessItemId}, Recipe id: ${guessRecipe}, Recipes: ${recipes.map((recipe) => recipe.id).join(", ")}`,
+    });
+  }
+
+  // test if we can get this recipe from the ingredients available
+  const inventory: InventoryData = latestGame.inventory;
+  let recipe: Recipe;
+  try {
+    recipe = Recipe.fromId(guessRecipe);
+  } catch {
+    throw new HTTPException(403, {
+      message: `Guessed recipe id doesn't exist. Recipe id: ${guessRecipe}`,
+    });
+  }
+
+  const ingredients: { item: Item; count: number }[] = getIngredients(recipe);
+  ingredients.forEach((ingredient) => {
+    const inventoryItem: ItemData | undefined = inventory.find(
+      (item) => item.id === ingredient.item.id,
+    );
+    if (!inventoryItem) {
+      throw new HTTPException(403, {
+        message: `Guessed recipe requires an ingredient that is not in the inventory. Ingredient: ${ingredient.item.name}, Recipe id: ${guessRecipe}`,
+      });
+    }
+    if (inventoryItem.count && inventoryItem.count < ingredient.count) {
+      throw new HTTPException(403, {
+        message: `Guessed recipe requires more of an ingredient than is in the inventory. Ingredient: ${ingredient.item.name}, Required: ${ingredient.count}, In inventory: ${inventoryItem.count}, Recipe id: ${guessRecipe}`,
+      });
+    }
+  });
+}
+
+// function isGuessCorrect(guessItemId: number) {
+//   throw new Error("Function not implemented.");
+// }

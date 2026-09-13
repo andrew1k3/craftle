@@ -134,12 +134,32 @@ export abstract class Recipe implements RecipeData {
     return recipes;
   }
 
-  public static fromId(id: number): Recipe[] {
+  public static fromItemId(id: number): Recipe[] {
     const recipes: Recipe[] = itemsToRecipes.get(id)!;
     if (!recipes) {
       throw new Error(`Recipes for item: ${id} do not exist`);
     }
     return recipes;
+  }
+
+  public static fromId(id: string): Recipe {
+    const result: Item | undefined = recipeToItem.get(id);
+    if (!result) {
+      throw new Error(`Recipe with id: ${id} does not exist`);
+    }
+    const recipes: Recipe[] = itemsToRecipes.get(result.id)!;
+    if (!recipes) {
+      throw new Error(
+        `Recipes for item: ${JSON.stringify(result)} do not exist`,
+      );
+    }
+    const recipe: Recipe | undefined = recipes.find(
+      (recipe) => recipe.id === id,
+    );
+    if (!recipe) {
+      throw new Error(`Recipe with id: ${id} does not exist`);
+    }
+    return recipe;
   }
 }
 

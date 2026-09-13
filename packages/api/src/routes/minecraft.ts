@@ -2,10 +2,11 @@ import { createRoute } from "@hono/zod-openapi";
 import {
   gameSchema,
   inventorySchema,
-  // ItemGuessStateSchema,
+  GuessResultSchema,
+  GuessParamsSchema,
 } from "@workspace/contracts/minecraft";
 import { z } from "@hono/zod-openapi";
-// import { guessTable } from "@workspace/contracts/db-schema/minecraft-schema";
+import { authMiddleware } from "../middleware";
 
 export const getLatestGameIdRoute = createRoute({
   method: "get",
@@ -112,25 +113,50 @@ export const deleteGameRoute = createRoute({
   },
 });
 
-// export const guessRoute = createRoute({
-//   method: "post",
-//   path: "/games/guess",
-//   request: {
-//     body: guessTable.$inferInsert()
-//   },
-//   responses: {
-//     200: {
-//       content: {
-//         "application/json": {
-//           schema: z.object({
-//             result: ItemGuessStateSchema,
-//             win: z.boolean(),
-//             turn: z.number(),
-//             message: z.string(),
-//           }),
-//         },
-//       },
-//       description: "Guess result",
-//     },
-//   },
-// });
+export const getGuessesRoute = createRoute({
+  method: "get",
+  path: "/games/guess",
+  request: {
+    query: z.object({
+      gameId: z.coerce.number().positive().optional().openapi({
+        description: "The ID of the game to retrieve the inventory for",
+        example: 1,
+      }),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.array(GuessResultSchema),
+        },
+      },
+      description: "Retrieve the previous guesses of the current user.",
+    },
+  },
+});
+
+export const guessRoute = createRoute({
+  method: "post",
+  path: "/games/guess",
+  middleware: authMiddleware,
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: GuessParamsSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: GuessResultSchema,
+        },
+      },
+      description: "Guess result",
+    },
+  },
+});

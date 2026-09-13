@@ -5,7 +5,7 @@ import { getTestUsers } from "./handlers/users";
 import { getTestUsersParams, TestUser } from "@workspace/contracts/users";
 import { Database } from "@workspace/db";
 import { Hono } from "hono";
-import { auth, AuthType } from "@workspace/auth";
+import { auth, AuthType, User } from "@workspace/auth";
 import { cors } from "hono/cors";
 import {
   getGameRoute,
@@ -13,6 +13,7 @@ import {
   generateGameRoute,
   deleteGameRoute,
   getLatestGameIdRoute,
+  guessRoute,
 } from "./routes/minecraft";
 import {
   generateGame,
@@ -20,8 +21,13 @@ import {
   getGame,
   deleteGame,
   getLatestGameId,
+  guess,
 } from "./handlers/minecraft";
-import { GameData, InventoryData } from "@workspace/contracts/minecraft";
+import {
+  GameData,
+  GuessParamsData,
+  InventoryData,
+} from "@workspace/contracts/minecraft";
 
 export const API_PATH = "/api";
 
@@ -105,6 +111,12 @@ export const routes = api
     const deleteGameParams: z.infer<typeof deleteGameRoute.request.query> =
       c.req.valid("query");
     const result = await deleteGame(deleteGameParams);
+    return c.json(result, 200);
+  })
+  .openapi(guessRoute, async (c) => {
+    const guessParams: GuessParamsData = await c.req.json();
+    const user: User = c.get("user");
+    const result = await guess(guessParams, user);
     return c.json(result, 200);
   })
   //health

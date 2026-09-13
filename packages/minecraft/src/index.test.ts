@@ -285,7 +285,7 @@ describe("minecraft-client", () => {
       const item = Item.fromDisplayName("oak_planks");
 
       const recipesByItem = Recipe.fromItem(item);
-      const recipesById = Recipe.fromId(item.id);
+      const recipesById = Recipe.fromItemId(item.id);
 
       expect(recipesById).toEqual(recipesByItem);
     });
@@ -309,7 +309,7 @@ describe("minecraft-client", () => {
     });
 
     it("should throw when recipes are requested for an unknown item id", () => {
-      expect(() => Recipe.fromId(Number.MAX_SAFE_INTEGER)).toThrow(
+      expect(() => Recipe.fromItemId(Number.MAX_SAFE_INTEGER)).toThrow(
         `Recipes for item: ${Number.MAX_SAFE_INTEGER} do not exist`,
       );
     });

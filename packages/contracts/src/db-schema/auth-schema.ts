@@ -7,6 +7,7 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { guessTable } from "./minecraft-schema";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -91,6 +92,7 @@ export const verification = pgTable(
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  guesses: many(guessTable),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

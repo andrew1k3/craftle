@@ -207,7 +207,7 @@ export class ShapedRecipe extends Recipe implements ShapedRecipeData {
         }
       }),
     );
-    this.id = `shaped_${shape.map((row) => row.join("")).join("_")}`;
+    this.id = `shaped_${getStringFromState(shape)}`;
   }
 
   public static fromShapedRecipe(shapedRecipe: MinecraftData.ShapedRecipe) {
@@ -230,6 +230,16 @@ export class RecipeFactory {
       throw new Error(`Unknown recipe type: ${JSON.stringify(recipe)}`);
     }
   }
+}
+
+export function getStateFromString<T>(stateString: string): T[][] {
+  return stateString
+    .split("_")
+    .map((row: string) => row.split("|").map((slot) => slot as T));
+}
+
+export function getStringFromState<T>(state: T[][]): string {
+  return state.map((row) => row.join("|")).join("_");
 }
 
 function init() {

@@ -84,23 +84,31 @@ export const gameSchema = z.object({
   expectedItem: itemSchema.openapi({
     description: "The expected item for the game",
   }),
+  expectedRecipe: recipeSchema.openapi({
+    description: "The expected recipe for the game",
+  }),
   inventory: inventorySchema,
 });
 
 export type GameData = z.infer<typeof gameSchema>;
 export type InventoryData = z.infer<typeof inventorySchema>;
 
-export const ItemSlotGuessStateSchema = z
+export const GuessSlotStateSchema = z
   .enum(["correct", "partial", "incorrect"])
   .openapi("States for a guess in a certain slot.");
-export const ItemGuessStateSchema = z
-  .array(z.array(ItemSlotGuessStateSchema.nullable()).min(1).max(3))
-  .min(1)
-  .max(3)
+export const GuessStateSchema = z
+  .array(z.array(GuessSlotStateSchema.nullable()).length(3))
+  .length(3)
   .openapi("Item guess state. Show the guess on the board.");
+export const ItemSlotStateSchema = z.number().int().positive().optional();
+export const ItemStateSchema = z
+  .array(z.array(ItemSlotStateSchema).length(3))
+  .length(3);
 
-export type ItemSlotGuessStateData = z.infer<typeof ItemSlotGuessStateSchema>;
-export type ItemGuessStateData = z.infer<typeof ItemGuessStateSchema>;
+export type GuessSlotStateData = z.infer<typeof GuessSlotStateSchema>;
+export type GuessStateData = z.infer<typeof GuessStateSchema>;
+export type ItemSlotStateData = z.infer<typeof ItemSlotStateSchema>;
+export type ItemStateData = z.infer<typeof ItemStateSchema>;
 
 export const GuessSchema = z.object({
   gameId: z.number().int().positive(),
@@ -108,13 +116,14 @@ export const GuessSchema = z.object({
   userId: z.string(),
   guessItemId: z.number().int().positive(),
   guessRecipe: z.string(),
+  guessState: GuessStateSchema,
+  itemState: ItemStateSchema,
 });
 
 export const GuessResultSchema = z.object({
-  result: ItemGuessStateSchema,
+  resultGuessState: GuessStateSchema,
   win: z.boolean(),
   turn: z.number(),
-  message: z.string(),
 });
 
 export type GuessData = z.infer<typeof GuessSchema>;
@@ -125,6 +134,7 @@ export const GuessParamsSchema = z.object({
   turn: z.number().int().positive(),
   guessItemId: z.number().int().positive(),
   guessRecipe: z.string(),
+  itemState: z.string(),
 });
 
 export type GuessParamsData = z.infer<typeof GuessParamsSchema>;

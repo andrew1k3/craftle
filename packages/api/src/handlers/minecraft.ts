@@ -1,4 +1,5 @@
 import {
+  getStateFromString,
   Item,
   Recipe,
   ShapedRecipe,
@@ -21,6 +22,11 @@ import {
   GuessResultData,
   InventoryData,
   ItemData,
+  GuessStateData,
+  GuessSlotStateData,
+  ItemStateData,
+  ItemSlotStateData,
+  RecipeData,
 } from "@workspace/contracts/minecraft";
 import { HTTPException } from "hono/http-exception";
 import { User } from "@workspace/auth";
@@ -77,12 +83,14 @@ export const generateGame = async (): Promise<GameData> => {
   const db: Db = Database.getInstance();
 
   const expectedItem: Item = Item.getRandomItem();
+  const expectedRecipe: Recipe = randomChoice(Recipe.fromItem(expectedItem))!;
 
   const [newGame] = await db
     .insert(gameTable)
     .values({
       expectedItemName: expectedItem.name,
       expectedItemId: expectedItem.id,
+      expectedRecipe: expectedRecipe.id,
       isActive: true,
     })
     .returning();
@@ -92,11 +100,10 @@ export const generateGame = async (): Promise<GameData> => {
   }
 
   const inventory: { item: Item; fromRecipe: Recipe; count: number }[] = [];
-  const chosenRecipe: Recipe = randomChoice(Recipe.fromItem(expectedItem))!;
-  getIngredients(chosenRecipe).forEach((ingredient) => {
+  getIngredients(expectedRecipe).forEach((ingredient) => {
     inventory.push({
       item: ingredient.item,
-      fromRecipe: chosenRecipe,
+      fromRecipe: expectedRecipe,
       count: ingredient.count,
     });
   });
@@ -162,6 +169,7 @@ export const getGame = async ({
     createdAt: game.createdAt.toISOString(),
     isActive: game.isActive,
     expectedItem: Item.fromId(game.expectedItemId),
+    expectedRecipe: Recipe.fromId(game.expectedRecipe),
     inventory: game.inventory.map((inventoryItem) =>
       Item.fromName(inventoryItem.itemName),
     ),
@@ -239,16 +247,28 @@ export const getGuesses = async (
     where: and(eq(guessTable.userId, userId), eq(guessTable.gameId, gameId)),
   });
 
-  return result;
+  return result.map((guess) => {
+    return {
+      gameId: guess.gameId,
+      turn: guess.turn,
+      userId: guess.userId,
+      guessItemId: guess.guessItemId,
+      guessRecipe: guess.guessRecipe,
+      guessState: getStateFromString<GuessSlotStateData>(guess.guessState),
+      itemState: getStateFromString<ItemSlotStateData>(guess.itemState),
+    };
+  });
 };
 
 export const guess = async (
-  { gameId, turn, guessItemId, guessRecipe }: GuessParamsData,
+  guessParams: GuessParamsData,
   user: User,
 ): Promise<GuessResultData> => {
-  // const db: Db = Database.getInstance();
+  const { gameId, turn, guessItemId, guessRecipe, itemState } = guessParams;
 
-  const lastetGameId = await getLatestGameId();
+  const db: Db = Database.getInstance();
+
+  const lastetGameId: number = await getLatestGameId();
 
   if (gameId != lastetGameId) {
     throw new HTTPException(403, {
@@ -256,26 +276,19 @@ export const guess = async (
     });
   }
 
-  await parseGuess({ gameId, turn, guessItemId, guessRecipe }, user);
+  await parseGuess(guessParams, user);
 
-  // // test if this is the correct guess (retrieve game stats)
-  // if (isGuessCorrect(guessItemId)) {
-  // }
+  const latestGame: GameData = await getGame({ gameId });
 
-  // // place guess in table
+  const resultGuessState: GuessStateData = processResultGuessState(Recipe.fromId(guessRecipe), latestGame.expectedRecipe, getStateFromString<ItemSlotStateData>(itemState))
 
-
-
-  // fake atm
-  return {
-    result: [
-      ["correct", "incorrect"],
-      ["incorrect", "correct"],
-    ],
-    win: false,
+  const guessResultData: GuessResultData = {
+    resultGuessState: resultGuessState,
+    win: latestGame.expectedItem.id === guessItemId,
     turn: turn + 1,
-    message: "Guess result",
   };
+
+  return guessResultData;
 };
 
 async function parseGuess(
@@ -371,6 +384,10 @@ async function parseGuess(
   });
 }
 
-// function isGuessCorrect(guessItemId: number) {
-//   throw new Error("Function not implemented.");
-// }
+function processResultGuessState(
+  guessRecipe: RecipeData,
+  expectedRecipe: RecipeData,
+  itemState: ItemStateData,
+): GuessStateData {
+  throw new Error("Function not implemented.");
+}

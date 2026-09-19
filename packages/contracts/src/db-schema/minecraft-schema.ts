@@ -16,6 +16,7 @@ export const gameTable = pgTable("game", {
   isActive: boolean("is_active").default(true).notNull(),
   expectedItemId: integer("expected_item_id").notNull(),
   expectedItemName: text("expected_item_name").notNull(),
+  expectedRecipe: text("expected_recipe").notNull(),
 });
 
 export const inventoryTable = pgTable(
@@ -50,6 +51,8 @@ export const guessTable = pgTable(
     guessItemId: integer("guess_item_id").notNull(),
     guessItemName: text("guess_item_name").notNull(),
     guessRecipe: text("guess_recipe").notNull(),
+    guessState: text("guess_state").notNull(),
+    itemState: text("item_state").notNull(),
   },
   (table) => [
     primaryKey({
